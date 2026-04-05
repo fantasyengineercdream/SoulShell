@@ -1,15 +1,122 @@
 @import "tailwindcss";
 
 :root {
-  --background: #050505;
-  --foreground: #e5e7eb;
+  --background: #fff8ef;
+  --foreground: #1e1b13;
+  --surface: #fff8ef;
+  --surface-low: #fbf3e4;
+  --surface-mid: #f5edde;
+  --surface-high: #efe7d9;
+  --surface-highest: #e9e2d3;
+  --primary: #705d00;
+  --primary-container: #ffd700;
+  --primary-fixed: #ffe16d;
+  --on-primary: #ffffff;
+  --amber-900: #78350f;
+  --stone-500: #78716c;
 }
 
 body {
+  font-family: var(--font-body, 'Be Vietnam Pro', sans-serif);
   background: var(--background);
   color: var(--foreground);
 }
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #111; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+.font-headline {
+  font-family: var(--font-headline, 'Plus Jakarta Sans', sans-serif);
+}
+
+/* Glass panel effect */
+.glass-panel {
+  background: rgba(255, 248, 239, 0.5);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* Soul glow for core sphere */
+.soul-glow {
+  box-shadow: 0 0 80px rgba(255, 215, 0, 0.3), inset 0 0 40px rgba(255, 255, 255, 0.5);
+}
+
+/* Pulse animation for soul core */
+@keyframes soul-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.04); opacity: 1; box-shadow: 0 0 60px rgba(255, 215, 0, 0.4); }
+}
+.animate-soul-pulse {
+  animation: soul-pulse 4s infinite ease-in-out;
+}
+
+/* Custom range slider - warm organic style */
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  width: 100%;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  height: 8px;
+  background: var(--surface-high);
+  border-radius: 9999px;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #705d00, #ffd700);
+  margin-top: -8px;
+  box-shadow: 0 4px 12px rgba(112, 93, 0, 0.25);
+  transition: transform 0.15s;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+input[type=range]::-moz-range-track {
+  height: 8px;
+  background: var(--surface-high);
+  border-radius: 9999px;
+}
+input[type=range]::-moz-range-thumb {
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #705d00, #ffd700);
+  box-shadow: 0 4px 12px rgba(112, 93, 0, 0.25);
+}
+
+/* Toggle switch */
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: #d6d3d1;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.toggle-switch.active {
+  background: var(--primary);
+}
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.toggle-switch.active::after {
+  transform: translateX(20px);
+}
+
+/* Scrollbar - warm style */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d0c6ab; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #b8ad90; }

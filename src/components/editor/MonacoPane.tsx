@@ -40,18 +40,21 @@ export function MonacoPane({ file, refreshKey }: Props) {
     : 'markdown';
 
   return (
-    <div className="flex-1 flex flex-col h-full">
-      <div className="h-12 border-b border-gray-800 flex items-center justify-between px-4 bg-gray-950">
-        <span className="text-xs font-mono text-gray-500 truncate max-w-[70%]">{file.path}</span>
-        <div className="flex items-center gap-2">
-          {file.isReadonly && <span className="text-[10px] bg-gray-800 text-gray-500 px-2 py-0.5 rounded">READ ONLY</span>}
+    <div className="flex-1 flex flex-col h-full bg-white/40 backdrop-blur-sm">
+      {/* Header bar */}
+      <div className="h-12 border-b border-amber-100 flex items-center justify-between px-5 bg-[#fbf3e4]/80">
+        <span className="text-xs font-mono text-stone-400 truncate max-w-[65%]">{file.path}</span>
+        <div className="flex items-center gap-3">
+          {file.isReadonly && (
+            <span className="text-[10px] bg-stone-200 text-stone-500 px-3 py-1 rounded-full font-semibold uppercase tracking-wider">Read Only</span>
+          )}
           {!file.isReadonly && (
             <button
               onClick={save}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold transition-all ${
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
                 saved
-                  ? 'bg-green-800 text-green-300'
-                  : 'bg-purple-700 hover:bg-purple-600 text-white'
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-amber-600 hover:bg-amber-500 text-white shadow-sm shadow-amber-200'
               }`}
             >
               {saved ? <><Check size={14} /> Saved</> : <><Save size={14} /> Save</>}
@@ -60,20 +63,22 @@ export function MonacoPane({ file, refreshKey }: Props) {
         </div>
       </div>
 
+      {/* Warning banner */}
       {file.warning && (
-        <div className="bg-yellow-900/20 text-yellow-500 text-xs p-2.5 flex items-center gap-2 border-b border-yellow-900/30">
+        <div className="bg-amber-50 text-amber-700 text-xs p-3 flex items-center gap-2 border-b border-amber-100">
           <AlertTriangle size={14} /> {file.warning}
         </div>
       )}
 
+      {/* Editor */}
       <div className="flex-1">
         {loading ? (
-          <div className="h-full flex items-center justify-center text-gray-600 text-sm">Loading...</div>
+          <div className="h-full flex items-center justify-center text-stone-400 text-sm">Loading...</div>
         ) : (
           <Editor
             height="100%"
             language={lang}
-            theme="vs-dark"
+            theme="vs"
             value={content}
             onChange={v => setContent(v || '')}
             options={{
@@ -81,8 +86,10 @@ export function MonacoPane({ file, refreshKey }: Props) {
               wordWrap: 'on',
               readOnly: file.isReadonly,
               fontSize: 13,
-              lineHeight: 1.6,
-              padding: { top: 12 },
+              lineHeight: 1.7,
+              padding: { top: 16 },
+              renderLineHighlight: 'none',
+              scrollBeyondLastLine: false,
             }}
           />
         )}
