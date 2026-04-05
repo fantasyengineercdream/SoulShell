@@ -76,7 +76,7 @@ export function Sidebar({ files, activeId, onSelect }: Props) {
                       className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] text-stone-500 hover:text-amber-700 transition w-full"
                     >
                       <ChevronDown size={10} className={`transition-transform shrink-0 ${isCollapsed ? '-rotate-90' : ''}`} />
-                      <span className="font-semibold">{cat}</span>
+                      <span className="font-semibold">{catFiles[0]?.categoryIcon} {cat}</span>
                     </button>
 
                     {!isCollapsed && (

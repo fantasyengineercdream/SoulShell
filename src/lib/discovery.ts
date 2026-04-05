@@ -6,6 +6,7 @@ export interface DiscoveredFile {
   id: string;
   platform: 'Claude Code' | 'OpenClaw';
   category: string;
+  categoryIcon: string;
   type: 'persona' | 'memory' | 'rules' | 'config';
   name: string;
   displayName: string;
@@ -17,13 +18,8 @@ export interface DiscoveredFile {
   injectable: boolean;
 }
 
-function makeId(filePath: string): string {
-  return Buffer.from(filePath).toString('base64');
-}
-
-async function fileExists(filePath: string): Promise<boolean> {
-  try { await fs.access(filePath); return true; } catch { return false; }
-}
+function makeId(p: string): string { return Buffer.from(p).toString('base64'); }
+async function exists(p: string): Promise<boolean> { try { await fs.access(p); return true; } catch { return false; } }
 
 export async function discoverFiles(): Promise<DiscoveredFile[]> {
   const home = os.homedir();
@@ -34,180 +30,178 @@ export async function discoverFiles(): Promise<DiscoveredFile[]> {
   //  Claude Code
   // ══════════════════════════════════════════════════════════
 
-  // ── 人格指令 ──
+  // ── 它是谁（人格）──
   const globalClaude = path.join(home, 'CLAUDE.md');
   files.push({
-    platform: 'Claude Code', category: '人格指令', type: 'persona',
+    platform: 'Claude Code', category: '它是谁', categoryIcon: '🪪', type: 'persona',
     name: 'CLAUDE.md', displayName: '全局 CLAUDE.md',
-    description: '跨所有项目生效。每轮对话注入，compaction 后从磁盘重读。40k 字符上限。',
+    description: '定义 Claude Code 在所有项目中的行为方式。你可以在这里塑造它的人格。',
     path: globalClaude, id: makeId(globalClaude),
-    exists: await fileExists(globalClaude),
-    isReadonly: false, injectable: true,
+    exists: await exists(globalClaude), isReadonly: false, injectable: true,
   });
 
   const projectClaude = path.join(cwd, 'CLAUDE.md');
   files.push({
-    platform: 'Claude Code', category: '人格指令', type: 'persona',
+    platform: 'Claude Code', category: '它是谁', categoryIcon: '🪪', type: 'persona',
     name: 'CLAUDE.md', displayName: '项目 CLAUDE.md',
-    description: '仅对当前项目生效，可覆盖全局指令。',
+    description: '仅在当前项目生效，可以让 Claude Code 在不同项目中有不同的人格。',
     path: projectClaude, id: makeId(projectClaude),
-    exists: await fileExists(projectClaude),
-    isReadonly: false, injectable: true,
+    exists: await exists(projectClaude), isReadonly: false, injectable: true,
   });
 
-  // ── 规则文件 ──
+  // ── 它怎么看你（认知）──
+  const projectMemDir = path.join(cwd, '.claude', 'memory');
+  const projectMemIndex = path.join(projectMemDir, 'MEMORY.md');
+  files.push({
+    platform: 'Claude Code', category: '它怎么看你', categoryIcon: '🧠', type: 'memory',
+    name: 'MEMORY.md', displayName: 'MEMORY.md（记忆索引）',
+    description: 'Claude Code 对你的了解：你的角色、偏好、过去的反馈。查看它记住了什么，纠正不准确的认知。',
+    path: projectMemIndex, id: makeId(projectMemIndex),
+    exists: await exists(projectMemIndex), isReadonly: false, injectable: false,
+    warning: '梦境素材：autoDream 会整合重写。你的编辑会参与记忆整合，但不保证原样保留。',
+  });
+
+  // topic 文件——每个都是 Claude 对你某方面的认知
+  try {
+    const memEntries = await fs.readdir(projectMemDir);
+    for (const f of memEntries) {
+      if (f === 'MEMORY.md' || !f.endsWith('.md')) continue;
+      const fp = path.join(projectMemDir, f);
+      const label = f.replace('.md', '').replace(/_/g, ' ');
+      files.push({
+        platform: 'Claude Code', category: '它怎么看你', categoryIcon: '🧠', type: 'memory',
+        name: f, displayName: label,
+        description: `Claude Code 关于「${label}」的记忆。可以查看和修改它对你的认知。`,
+        path: fp, id: makeId(fp),
+        exists: true, isReadonly: false, injectable: false,
+      });
+    }
+  } catch { /* no memory dir */ }
+
+  // ── 它怎么工作（规则）──
   const rulesDir = path.join(cwd, '.claude', 'rules');
   try {
     const entries = await fs.readdir(rulesDir);
     for (const entry of entries) {
-      if (entry.endsWith('.md')) {
-        const fp = path.join(rulesDir, entry);
-        files.push({
-          platform: 'Claude Code', category: '规则文件', type: 'rules',
-          name: entry, displayName: entry,
-          description: '上下文规则，由 Claude Code 按条件自动加载。',
-          path: fp, id: makeId(fp),
-          exists: true, isReadonly: false, injectable: false,
-        });
-      }
+      if (!entry.endsWith('.md')) continue;
+      const fp = path.join(rulesDir, entry);
+      files.push({
+        platform: 'Claude Code', category: '它怎么工作', categoryIcon: '📋', type: 'rules',
+        name: entry, displayName: entry,
+        description: '上下文规则，决定 Claude Code 在特定情境下的行为。',
+        path: fp, id: makeId(fp),
+        exists: true, isReadonly: false, injectable: false,
+      });
     }
-  } catch { /* dir doesn't exist */ }
+  } catch { /* no rules dir */ }
 
-  // ── 当前项目记忆 ──
-  // 只展示当前项目的记忆，不扫全局所有项目
-  const projectMemDir = path.join(cwd, '.claude', 'memory');
-  const projectMemIndex = path.join(projectMemDir, 'MEMORY.md');
-  files.push({
-    platform: 'Claude Code', category: '当前项目记忆', type: 'memory',
-    name: 'MEMORY.md', displayName: 'MEMORY.md（记忆索引）',
-    description: '前 200 行注入系统提示。索引指向下方的 topic 文件。autoDream 会定期整合重写。',
-    path: projectMemIndex, id: makeId(projectMemIndex),
-    exists: await fileExists(projectMemIndex),
-    isReadonly: false, injectable: false,
-    warning: '梦境素材：autoDream 会整合重写此文件。你的编辑会参与记忆整合，但不保证原样保留。',
-  });
-
-  // 当前项目的 topic 文件
-  try {
-    const memEntries = await fs.readdir(projectMemDir);
-    for (const memFile of memEntries) {
-      if (memFile === 'MEMORY.md') continue;
-      if (memFile.endsWith('.md')) {
-        const fp = path.join(projectMemDir, memFile);
-        files.push({
-          platform: 'Claude Code', category: '当前项目记忆', type: 'memory',
-          name: memFile, displayName: memFile,
-          description: '记忆 topic 文件，按需加载到对话中。记录 user/feedback/project/reference 四类记忆。',
-          path: fp, id: makeId(fp),
-          exists: true, isReadonly: false, injectable: false,
-        });
-      }
-    }
-  } catch { /* no memory dir */ }
-
-  // ── 系统配置（只读）──
+  // ── 配置 ──
   const settingsPath = path.join(home, '.claude', 'settings.json');
   files.push({
-    platform: 'Claude Code', category: '系统配置', type: 'config',
+    platform: 'Claude Code', category: '配置', categoryIcon: '⚙️', type: 'config',
     name: 'settings.json', displayName: 'settings.json',
-    description: 'hooks 配置、权限白名单、MCP 服务器。只读展示，修改需谨慎。',
+    description: 'hooks、权限白名单、MCP 服务器。只读，了解系统如何配置。',
     path: settingsPath, id: makeId(settingsPath),
-    exists: await fileExists(settingsPath),
-    isReadonly: true, injectable: false,
+    exists: await exists(settingsPath), isReadonly: true, injectable: false,
   });
 
   // ══════════════════════════════════════════════════════════
-  //  OpenClaw — bootstrap 文件在 ~/.openclaw/workspace/ 下
-  //  每次会话启动时按顺序读取：SOUL.md → USER.md → MEMORY.md
-  //  即使未安装也显示，让用户知道我们支持
+  //  OpenClaw — 文件在 ~/.openclaw/workspace/
   // ══════════════════════════════════════════════════════════
 
-  const ocWorkspace = path.join(home, '.openclaw', 'workspace');
+  const ocW = path.join(home, '.openclaw', 'workspace');
 
-  const openclawFiles: Array<{
-    name: string; displayName: string; category: string;
-    type: 'persona' | 'memory' | 'rules' | 'config';
-    description: string; injectable: boolean; isReadonly: boolean;
-  }> = [
-    // ── 人格核心：每次会话首先读取 ──
-    { name: 'SOUL.md', displayName: 'SOUL.md — 人格核心', category: '人格定义',
-      type: 'persona',
-      description: '定义 agent 是谁：核心信念、边界、氛围。每次会话首先读取。修改后立即生效。',
-      injectable: true, isReadonly: false },
-    { name: 'USER.md', displayName: 'USER.md — 用户画像', category: '人格定义',
-      type: 'persona',
-      description: '关于你的信息：姓名、时区、偏好、项目。会随交互逐步补充。',
-      injectable: true, isReadonly: false },
-    { name: 'IDENTITY.md', displayName: 'IDENTITY.md — 身份元数据', category: '人格定义',
-      type: 'persona',
-      description: 'agent 的名字、物种、氛围、emoji、头像。第一次对话时填写。',
-      injectable: false, isReadonly: false },
+  // ── 它是谁（灵魂）──
+  const soulPath = path.join(ocW, 'SOUL.md');
+  files.push({
+    platform: 'OpenClaw', category: '它是谁', categoryIcon: '🪪', type: 'persona',
+    name: 'SOUL.md', displayName: 'SOUL.md（灵魂核心）',
+    description: 'OpenClaw 的核心人格：信念、边界、氛围。修改后下次对话立即生效。',
+    path: soulPath, id: makeId(soulPath),
+    exists: await exists(soulPath), isReadonly: false, injectable: true,
+  });
 
-    // ── 行为规则 ──
-    { name: 'AGENTS.md', displayName: 'AGENTS.md — 工作流程', category: '行为规则',
-      type: 'rules',
-      description: '每次会话的标准流程：先读 SOUL → USER → 记忆。定义记忆策略和安全边界。',
-      injectable: false, isReadonly: false },
-    { name: 'BOOTSTRAP.md', displayName: 'BOOTSTRAP.md — 初始化指令', category: '行为规则',
-      type: 'rules',
-      description: '首次运行时的引导流程。agent 完成自我认知后会删除此文件。',
-      injectable: false, isReadonly: false },
+  const idPath = path.join(ocW, 'IDENTITY.md');
+  files.push({
+    platform: 'OpenClaw', category: '它是谁', categoryIcon: '🪪', type: 'persona',
+    name: 'IDENTITY.md', displayName: 'IDENTITY.md（身份卡）',
+    description: 'agent 的名字、物种、emoji、头像。它的自我认同。',
+    path: idPath, id: makeId(idPath),
+    exists: await exists(idPath), isReadonly: false, injectable: false,
+  });
 
-    // ── 记忆系统 ──
-    { name: 'TOOLS.md', displayName: 'TOOLS.md — 环境工具', category: '环境与记忆',
-      type: 'config',
-      description: 'API 端点、认证方式、SSH 别名、设备信息。',
-      injectable: false, isReadonly: false },
-    { name: 'HEARTBEAT.md', displayName: 'HEARTBEAT.md — 定时任务', category: '环境与记忆',
-      type: 'config',
-      description: '周期性 cron 任务清单。',
-      injectable: false, isReadonly: false },
-  ];
+  // ── 它怎么看你（认知）──
+  const userPath = path.join(ocW, 'USER.md');
+  files.push({
+    platform: 'OpenClaw', category: '它怎么看你', categoryIcon: '🧠', type: 'persona',
+    name: 'USER.md', displayName: 'USER.md（用户画像）',
+    description: 'OpenClaw 对你的了解：姓名、偏好、项目。会随交互逐步补充，你也可以直接编辑。',
+    path: userPath, id: makeId(userPath),
+    exists: await exists(userPath), isReadonly: false, injectable: true,
+  });
 
-  for (const oc of openclawFiles) {
-    const fp = path.join(ocWorkspace, oc.name);
-    files.push({
-      platform: 'OpenClaw',
-      category: oc.category,
-      type: oc.type,
-      name: oc.name,
-      displayName: oc.displayName,
-      description: oc.description,
-      path: fp,
-      id: makeId(fp),
-      exists: await fileExists(fp),
-      isReadonly: oc.isReadonly,
-      injectable: oc.injectable,
-    });
-  }
-
-  // OpenClaw 记忆日志：workspace/memory/*.md
-  const ocMemDir = path.join(ocWorkspace, 'memory');
+  // 每日记忆日志
+  const ocMemDir = path.join(ocW, 'memory');
   try {
     const memEntries = await fs.readdir(ocMemDir);
     for (const entry of memEntries) {
-      if (entry.endsWith('.md')) {
-        const fp = path.join(ocMemDir, entry);
-        files.push({
-          platform: 'OpenClaw', category: '每日记忆', type: 'memory',
-          name: entry, displayName: entry,
-          description: '每日记忆日志，记录当天发生的事件和决策。',
-          path: fp, id: makeId(fp),
-          exists: true, isReadonly: false, injectable: false,
-        });
-      }
+      if (!entry.endsWith('.md')) continue;
+      const fp = path.join(ocMemDir, entry);
+      files.push({
+        platform: 'OpenClaw', category: '它怎么看你', categoryIcon: '🧠', type: 'memory',
+        name: entry, displayName: entry.replace('.md', ''),
+        description: '每日记忆日志，记录当天发生的事件和决策。可查看 agent 记住了什么。',
+        path: fp, id: makeId(fp),
+        exists: true, isReadonly: false, injectable: false,
+      });
     }
   } catch { /* no memory dir yet */ }
 
-  // OpenClaw 主配置文件
+  // ── 它怎么工作（规则）──
+  const agentsPath = path.join(ocW, 'AGENTS.md');
+  files.push({
+    platform: 'OpenClaw', category: '它怎么工作', categoryIcon: '📋', type: 'rules',
+    name: 'AGENTS.md', displayName: 'AGENTS.md（工作流程）',
+    description: '每次会话的标准流程：先读灵魂 → 用户画像 → 记忆。定义记忆策略和安全边界。',
+    path: agentsPath, id: makeId(agentsPath),
+    exists: await exists(agentsPath), isReadonly: false, injectable: false,
+  });
+
+  const bootPath = path.join(ocW, 'BOOTSTRAP.md');
+  files.push({
+    platform: 'OpenClaw', category: '它怎么工作', categoryIcon: '📋', type: 'rules',
+    name: 'BOOTSTRAP.md', displayName: 'BOOTSTRAP.md（初始化）',
+    description: '首次运行时的引导流程。agent 完成自我认知后会自行删除。',
+    path: bootPath, id: makeId(bootPath),
+    exists: await exists(bootPath), isReadonly: false, injectable: false,
+  });
+
+  // ── 配置 ──
+  const toolsPath = path.join(ocW, 'TOOLS.md');
+  files.push({
+    platform: 'OpenClaw', category: '配置', categoryIcon: '⚙️', type: 'config',
+    name: 'TOOLS.md', displayName: 'TOOLS.md（环境工具）',
+    description: 'API 端点、认证方式、SSH 别名。',
+    path: toolsPath, id: makeId(toolsPath),
+    exists: await exists(toolsPath), isReadonly: false, injectable: false,
+  });
+
+  const hbPath = path.join(ocW, 'HEARTBEAT.md');
+  files.push({
+    platform: 'OpenClaw', category: '配置', categoryIcon: '⚙️', type: 'config',
+    name: 'HEARTBEAT.md', displayName: 'HEARTBEAT.md（定时任务）',
+    description: '周期性任务清单。',
+    path: hbPath, id: makeId(hbPath),
+    exists: await exists(hbPath), isReadonly: false, injectable: false,
+  });
+
   const ocConfig = path.join(home, '.openclaw', 'openclaw.json');
   files.push({
-    platform: 'OpenClaw', category: '系统配置', type: 'config',
-    name: 'openclaw.json', displayName: 'openclaw.json — 主配置',
-    description: 'OpenClaw 的全局配置文件。只读展示。',
+    platform: 'OpenClaw', category: '配置', categoryIcon: '⚙️', type: 'config',
+    name: 'openclaw.json', displayName: 'openclaw.json（主配置）',
+    description: 'OpenClaw 全局配置。只读。',
     path: ocConfig, id: makeId(ocConfig),
-    exists: await fileExists(ocConfig),
-    isReadonly: true, injectable: false,
+    exists: await exists(ocConfig), isReadonly: true, injectable: false,
   });
 
   return files;
