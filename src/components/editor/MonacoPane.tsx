@@ -46,7 +46,7 @@ export function MonacoPane({ file, refreshKey }: Props) {
         <span className="text-xs font-mono text-stone-400 truncate max-w-[65%]">{file.path}</span>
         <div className="flex items-center gap-3">
           {file.isReadonly && (
-            <span className="text-[10px] bg-stone-200 text-stone-500 px-3 py-1 rounded-full font-semibold uppercase tracking-wider">Read Only</span>
+            <span className="text-[10px] bg-stone-200 text-stone-500 px-3 py-1 rounded-full font-semibold uppercase tracking-wider">只读</span>
           )}
           {!file.isReadonly && (
             <button
@@ -57,7 +57,7 @@ export function MonacoPane({ file, refreshKey }: Props) {
                   : 'bg-amber-600 hover:bg-amber-500 text-white shadow-sm shadow-amber-200'
               }`}
             >
-              {saved ? <><Check size={14} /> Saved</> : <><Save size={14} /> Save</>}
+              {saved ? <><Check size={14} /> 已保存</> : <><Save size={14} /> 保存</>}
             </button>
           )}
         </div>
@@ -73,7 +73,7 @@ export function MonacoPane({ file, refreshKey }: Props) {
       {/* Editor */}
       <div className="flex-1">
         {loading ? (
-          <div className="h-full flex items-center justify-center text-stone-400 text-sm">Loading...</div>
+          <div className="h-full flex items-center justify-center text-stone-400 text-sm">加载中...</div>
         ) : (
           <Editor
             height="100%"

@@ -26,7 +26,7 @@ export function Sidebar({ files, activeId, onSelect }: Props) {
         </div>
         <div>
           <h1 className="text-xl font-extrabold text-amber-900 font-headline tracking-tight leading-none">SoulShell</h1>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-amber-600/70 mt-0.5">Radiant Sanctuary</p>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-amber-600/70 mt-0.5">灵魂诞壳</p>
         </div>
       </div>
 
@@ -61,8 +61,8 @@ export function Sidebar({ files, activeId, onSelect }: Props) {
 
         {files.length === 0 && (
           <div className="text-stone-400 text-sm text-center mt-8 px-4">
-            <p className="mb-2">No agent configs detected.</p>
-            <p className="text-xs text-stone-300">Install Claude Code or OpenClaw to get started.</p>
+            <p className="mb-2">未检测到 Agent 配置文件</p>
+            <p className="text-xs text-stone-300">请安装 Claude Code 或 OpenClaw</p>
           </div>
         )}
       </div>
@@ -71,7 +71,7 @@ export function Sidebar({ files, activeId, onSelect }: Props) {
       <div className="mt-auto pt-4">
         <button className="w-full py-3 bg-[#e9e2d3] text-amber-900 rounded-full font-bold text-sm shadow-sm hover:bg-[#e0d8c8] transition-colors flex items-center justify-center gap-2">
           <Plus size={16} />
-          Add Custom Path
+          添加自定义路径
         </button>
       </div>
     </aside>

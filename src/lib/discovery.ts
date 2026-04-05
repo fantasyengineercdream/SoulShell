@@ -51,7 +51,7 @@ async function scanMemoryProjects(files: DiscoveredFile[], projectsDir: string) 
       await tryAdd(files, memoryPath, {
         platform: 'Claude Code', type: 'memory', name: `${proj}/MEMORY.md`,
         isReadonly: false, scope: 'project',
-        warning: 'Dream Material: Content may be rewritten by autoDream consolidation. Edits here become dream素材.'
+        warning: '梦境素材：此内容可能被 autoDream 整合重写。你的编辑会成为梦境的原料。'
       });
     }
   } catch {

@@ -27,17 +27,17 @@ export function PersonaForm({ activeFile, onInjected }: Props) {
   const [expertise, setExpertise] = useState('');
 
   const [sliders, setSliders] = useState<SliderField[]>([
-    { key: 'logical_empathetic', left: 'Logical', right: 'Empathetic', value: 50 },
-    { key: 'stoic_vibrant', left: 'Stoic', right: 'Vibrant', value: 50 },
-    { key: 'traditional_innovative', left: 'Traditional', right: 'Innovative', value: 50 },
-    { key: 'concise_verbose', left: 'Concise', right: 'Detailed', value: 30 },
+    { key: 'logical_empathetic', left: '理性', right: '感性', value: 50 },
+    { key: 'stoic_vibrant', left: '沉稳', right: '活泼', value: 50 },
+    { key: 'traditional_innovative', left: '保守', right: '激进', value: 50 },
+    { key: 'concise_verbose', left: '简洁', right: '详尽', value: 30 },
   ]);
 
   const [toggles, setToggles] = useState<ToggleField[]>([
-    { key: 'no_emoji', label: 'Never use emojis', active: true },
-    { key: 'no_apology', label: 'Never apologize', active: false },
-    { key: 'no_overexplain', label: 'Never over-explain', active: true },
-    { key: 'challenge_ok', label: 'Push back when wrong', active: true },
+    { key: 'no_emoji', label: '不使用 emoji', active: true },
+    { key: 'no_apology', label: '不道歉', active: false },
+    { key: 'no_overexplain', label: '不过度解释', active: true },
+    { key: 'challenge_ok', label: '我错了请直接反驳', active: true },
   ]);
 
   const [injecting, setInjecting] = useState(false);
@@ -100,15 +100,15 @@ export function PersonaForm({ activeFile, onInjected }: Props) {
     <div className="flex flex-col h-full overflow-y-auto p-5 bg-[#fbf3e4]/60">
       {/* Header */}
       <div className="mb-4">
-        <h3 className="text-lg font-extrabold text-amber-900 font-headline">Ghost in the Shell</h3>
-        <p className="text-xs text-stone-400">5-Layer Persona Editor</p>
+        <h3 className="text-lg font-extrabold text-amber-900 font-headline">灵魂注入器</h3>
+        <p className="text-xs text-stone-400">五维人格编辑器</p>
       </div>
 
       {/* Templates */}
       <div className="mb-5">
         <div className="flex items-center gap-2 mb-2">
           <BookOpen size={12} className="text-amber-600" />
-          <span className="text-[10px] text-stone-400 uppercase font-bold tracking-wider">Templates</span>
+          <span className="text-[10px] text-stone-400 uppercase font-bold tracking-wider">傀儡模板</span>
         </div>
         <div className="flex flex-wrap gap-1.5">
           {Object.entries(TEMPLATES).map(([name, t]) => (
@@ -126,11 +126,11 @@ export function PersonaForm({ activeFile, onInjected }: Props) {
 
       {/* Identity (text) */}
       <div className="mb-4">
-        <label className="block text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-1">Identity</label>
+        <label className="block text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-1">身份</label>
         <textarea
           value={identity}
           onChange={e => setIdentity(e.target.value)}
-          placeholder="Who is this AI? Role, values, personality..."
+          placeholder="这个 AI 是谁？角色、价值观、性格特质..."
           className="w-full bg-white border-none rounded-xl p-3 text-sm text-stone-700 min-h-[56px] focus:ring-2 focus:ring-amber-300 outline-none resize-y shadow-sm"
         />
       </div>
@@ -139,7 +139,7 @@ export function PersonaForm({ activeFile, onInjected }: Props) {
       <div className="mb-4 bg-white rounded-xl p-4 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-amber-600 text-lg">🧠</span>
-          <span className="text-sm font-bold text-amber-900 font-headline">Personality Matrix</span>
+          <span className="text-sm font-bold text-amber-900 font-headline">人格矩阵</span>
         </div>
         <div className="space-y-5">
           {sliders.map((s, i) => (
@@ -161,7 +161,7 @@ export function PersonaForm({ activeFile, onInjected }: Props) {
       <div className="mb-4 bg-white rounded-xl p-4 shadow-sm">
         <div className="flex items-center gap-2 mb-3">
           <Shield size={16} className="text-amber-600" />
-          <span className="text-sm font-bold text-amber-900 font-headline">Red Lines</span>
+          <span className="text-sm font-bold text-amber-900 font-headline">红线禁令</span>
         </div>
         <div className="space-y-2">
           {toggles.map((t, i) => (
@@ -178,11 +178,11 @@ export function PersonaForm({ activeFile, onInjected }: Props) {
 
       {/* Expertise (text) */}
       <div className="mb-4">
-        <label className="block text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-1">Expertise</label>
+        <label className="block text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-1">专长</label>
         <textarea
           value={expertise}
           onChange={e => setExpertise(e.target.value)}
-          placeholder="Tech stack, domains, current project..."
+          placeholder="技术栈、擅长领域、当前项目..."
           className="w-full bg-white border-none rounded-xl p-3 text-sm text-stone-700 min-h-[56px] focus:ring-2 focus:ring-amber-300 outline-none resize-y shadow-sm"
         />
       </div>
@@ -191,7 +191,7 @@ export function PersonaForm({ activeFile, onInjected }: Props) {
       <div className="mt-auto pt-3">
         {activeFile && (
           <p className="text-[10px] text-stone-400 mb-2 text-center">
-            Target: <span className="text-amber-700 font-semibold">{activeFile.platform} / {activeFile.name}</span>
+            目标：<span className="text-amber-700 font-semibold">{activeFile.platform} / {activeFile.name}</span>
           </p>
         )}
         <button
@@ -205,7 +205,7 @@ export function PersonaForm({ activeFile, onInjected }: Props) {
                 : 'bg-stone-200 text-stone-400 cursor-not-allowed'
           }`}
         >
-          {injected ? <><Check size={16} /> Soul Injected!</> : <><Zap size={16} /> {injecting ? 'Injecting...' : 'Inject Soul'}</>}
+          {injected ? <><Check size={16} /> 灵魂已注入！</> : <><Zap size={16} /> {injecting ? '注入中...' : '注入灵魂'}</>}
         </button>
       </div>
     </div>

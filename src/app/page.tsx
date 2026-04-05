@@ -42,10 +42,10 @@ export default function Home() {
           </div>
 
           <h1 className="text-5xl font-extrabold text-amber-900 font-headline tracking-tight mb-3">SoulShell</h1>
-          <p className="text-stone-500 text-base mb-1 font-medium">Agent Persona Visual Terminal</p>
+          <p className="text-stone-500 text-base mb-1 font-medium">灵魂诞壳 · Agent 人格通用终端</p>
           <p className="text-stone-400 text-sm mb-10 max-w-md text-center leading-relaxed">
-            Discover, edit, and inject personality into your AI tools.<br />
-            One soul, every platform.
+            发现、编辑、注入——让你的 AI 工具拥有灵魂。<br />
+            一个灵魂，如影随形。
           </p>
 
           <button
@@ -53,7 +53,7 @@ export default function Home() {
             className="px-10 py-4 bg-gradient-to-r from-amber-700 to-amber-400 rounded-full text-white font-bold text-lg shadow-xl shadow-amber-200/50 hover:scale-[1.03] active:scale-95 transition-all flex items-center gap-3"
           >
             <span>✨</span>
-            Hatch Your Companion
+            孵化你的伙伴
           </button>
         </div>
       </div>
@@ -75,8 +75,8 @@ export default function Home() {
             <div className="w-24 h-24 rounded-full bg-amber-50 flex items-center justify-center">
               <span className="text-4xl opacity-40">📂</span>
             </div>
-            <p className="text-sm font-medium">Select a file from the sidebar</p>
-            <p className="text-xs text-stone-300">Browse your agent config files</p>
+            <p className="text-sm font-medium">从左侧选择一个文件</p>
+            <p className="text-xs text-stone-300">浏览你的 Agent 配置文件</p>
           </div>
         )}
       </main>
