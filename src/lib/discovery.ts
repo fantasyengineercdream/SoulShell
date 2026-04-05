@@ -117,42 +117,55 @@ export async function discoverFiles(): Promise<DiscoveredFile[]> {
   });
 
   // ══════════════════════════════════════════════════════════
-  //  OpenClaw — 7 个 bootstrap 文件
+  //  OpenClaw — bootstrap 文件在 ~/.openclaw/workspace/ 下
+  //  每次会话启动时按顺序读取：SOUL.md → USER.md → MEMORY.md
   //  即使未安装也显示，让用户知道我们支持
   // ══════════════════════════════════════════════════════════
 
-  const ocBase = path.join(home, '.openclaw');
+  const ocWorkspace = path.join(home, '.openclaw', 'workspace');
 
   const openclawFiles: Array<{
     name: string; displayName: string; category: string;
     type: 'persona' | 'memory' | 'rules' | 'config';
     description: string; injectable: boolean; isReadonly: boolean;
   }> = [
-    { name: 'SOUL.md', displayName: 'SOUL.md', category: '人格核心',
-      type: 'persona', description: '定义 agent 的身份、价值观、沟通风格。500-1500 词最佳。每次会话首先读取。',
+    // ── 人格核心：每次会话首先读取 ──
+    { name: 'SOUL.md', displayName: 'SOUL.md — 人格核心', category: '人格定义',
+      type: 'persona',
+      description: '定义 agent 是谁：核心信念、边界、氛围。每次会话首先读取。修改后立即生效。',
       injectable: true, isReadonly: false },
-    { name: 'USER.md', displayName: 'USER.md', category: '用户画像',
-      type: 'persona', description: '关于你的信息：姓名、时区、沟通偏好、背景。与 SOUL.md 职责分离。',
+    { name: 'USER.md', displayName: 'USER.md — 用户画像', category: '人格定义',
+      type: 'persona',
+      description: '关于你的信息：姓名、时区、偏好、项目。会随交互逐步补充。',
       injectable: true, isReadonly: false },
-    { name: 'AGENTS.md', displayName: 'AGENTS.md', category: '操作规则',
-      type: 'rules', description: '路由策略、安全约束、范围边界。人格月级稳定，规则周级更新。',
+    { name: 'IDENTITY.md', displayName: 'IDENTITY.md — 身份元数据', category: '人格定义',
+      type: 'persona',
+      description: 'agent 的名字、物种、氛围、emoji、头像。第一次对话时填写。',
       injectable: false, isReadonly: false },
-    { name: 'IDENTITY.md', displayName: 'IDENTITY.md', category: '身份元数据',
-      type: 'persona', description: '3-5 行：名字、头像路径、emoji。纯元数据。',
+
+    // ── 行为规则 ──
+    { name: 'AGENTS.md', displayName: 'AGENTS.md — 工作流程', category: '行为规则',
+      type: 'rules',
+      description: '每次会话的标准流程：先读 SOUL → USER → 记忆。定义记忆策略和安全边界。',
       injectable: false, isReadonly: false },
-    { name: 'TOOLS.md', displayName: 'TOOLS.md', category: '环境工具',
-      type: 'config', description: 'API 端点、认证头、SSH 别名、设备名。',
+    { name: 'BOOTSTRAP.md', displayName: 'BOOTSTRAP.md — 初始化指令', category: '行为规则',
+      type: 'rules',
+      description: '首次运行时的引导流程。agent 完成自我认知后会删除此文件。',
       injectable: false, isReadonly: false },
-    { name: 'MEMORY.md', displayName: 'MEMORY.md', category: '学习记录',
-      type: 'memory', description: '已学到的模式和偏好。不要重复 AGENTS.md 里已有的规则。',
+
+    // ── 记忆系统 ──
+    { name: 'TOOLS.md', displayName: 'TOOLS.md — 环境工具', category: '环境与记忆',
+      type: 'config',
+      description: 'API 端点、认证方式、SSH 别名、设备信息。',
       injectable: false, isReadonly: false },
-    { name: 'HEARTBEAT.md', displayName: 'HEARTBEAT.md', category: '定时任务',
-      type: 'config', description: '周期性 cron 任务清单。',
+    { name: 'HEARTBEAT.md', displayName: 'HEARTBEAT.md — 定时任务', category: '环境与记忆',
+      type: 'config',
+      description: '周期性 cron 任务清单。',
       injectable: false, isReadonly: false },
   ];
 
   for (const oc of openclawFiles) {
-    const fp = path.join(ocBase, oc.name);
+    const fp = path.join(ocWorkspace, oc.name);
     files.push({
       platform: 'OpenClaw',
       category: oc.category,
@@ -167,6 +180,35 @@ export async function discoverFiles(): Promise<DiscoveredFile[]> {
       injectable: oc.injectable,
     });
   }
+
+  // OpenClaw 记忆日志：workspace/memory/*.md
+  const ocMemDir = path.join(ocWorkspace, 'memory');
+  try {
+    const memEntries = await fs.readdir(ocMemDir);
+    for (const entry of memEntries) {
+      if (entry.endsWith('.md')) {
+        const fp = path.join(ocMemDir, entry);
+        files.push({
+          platform: 'OpenClaw', category: '每日记忆', type: 'memory',
+          name: entry, displayName: entry,
+          description: '每日记忆日志，记录当天发生的事件和决策。',
+          path: fp, id: makeId(fp),
+          exists: true, isReadonly: false, injectable: false,
+        });
+      }
+    }
+  } catch { /* no memory dir yet */ }
+
+  // OpenClaw 主配置文件
+  const ocConfig = path.join(home, '.openclaw', 'openclaw.json');
+  files.push({
+    platform: 'OpenClaw', category: '系统配置', type: 'config',
+    name: 'openclaw.json', displayName: 'openclaw.json — 主配置',
+    description: 'OpenClaw 的全局配置文件。只读展示。',
+    path: ocConfig, id: makeId(ocConfig),
+    exists: await fileExists(ocConfig),
+    isReadonly: true, injectable: false,
+  });
 
   return files;
 }

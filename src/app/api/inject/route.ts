@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
     if (platform === 'Claude Code') {
       await injectClaudeCode(targetPath, persona);
     } else if (platform === 'OpenClaw') {
+      // OpenClaw 文件在 ~/.openclaw/workspace/ 下
       const dir = path.dirname(targetPath);
       await injectOpenClaw(dir, persona);
     } else {
