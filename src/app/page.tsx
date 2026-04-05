@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { MonacoPane } from '@/components/editor/MonacoPane';
-import { PersonaForm } from '@/components/editor/PersonaForm';
+import { GhostBuilder } from '@/components/editor/GhostBuilder';
 import { PetCompanion } from '@/components/incubator/PetCompanion';
 import { DiscoveredFile } from '@/lib/discovery';
 
@@ -11,6 +11,7 @@ export default function Home() {
   const [files, setFiles] = useState<DiscoveredFile[]>([]);
   const [activeFile, setActiveFile] = useState<DiscoveredFile | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [rightTab, setRightTab] = useState<'ghost' | 'pet'>('ghost');
 
   useEffect(() => {
     if (view === 'editor') {
@@ -22,7 +23,6 @@ export default function Home() {
   if (view === 'incubator') {
     return (
       <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#fff8ef] relative overflow-hidden">
-        {/* Ambient glow rings */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-[600px] h-[600px] rounded-full border border-amber-200/30 animate-[spin_25s_linear_infinite]" />
           <div className="absolute w-[500px] h-[500px] rounded-full border border-amber-100/20 animate-[spin_40s_linear_infinite_reverse]" />
@@ -30,13 +30,11 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 flex flex-col items-center">
-          {/* Soul Core Sphere */}
           <div className="relative mb-12">
             <div className="w-48 h-48 rounded-full bg-gradient-to-br from-amber-300 via-yellow-200 to-amber-100 soul-glow animate-soul-pulse flex items-center justify-center">
               <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.8),transparent)]" />
               <span className="text-6xl relative z-10">🥚</span>
             </div>
-            {/* Floating particles */}
             <div className="absolute top-1/4 -right-6 w-3 h-3 bg-amber-400 rounded-full shadow-[0_0_16px_#ffd700] animate-pulse" />
             <div className="absolute bottom-1/3 -left-8 w-2 h-2 bg-white rounded-full shadow-[0_0_12px_#fff] animate-pulse" />
           </div>
@@ -48,12 +46,9 @@ export default function Home() {
             一个灵魂，如影随形。
           </p>
 
-          <button
-            onClick={() => setView('editor')}
-            className="px-10 py-4 bg-gradient-to-r from-amber-700 to-amber-400 rounded-full text-white font-bold text-lg shadow-xl shadow-amber-200/50 hover:scale-[1.03] active:scale-95 transition-all flex items-center gap-3"
-          >
-            <span>✨</span>
-            孵化你的伙伴
+          <button onClick={() => setView('editor')}
+            className="px-10 py-4 bg-gradient-to-r from-amber-700 to-amber-400 rounded-full text-white font-bold text-lg shadow-xl shadow-amber-200/50 hover:scale-[1.03] active:scale-95 transition-all flex items-center gap-3">
+            <span>✨</span> 孵化你的伙伴
           </button>
         </div>
       </div>
@@ -76,21 +71,44 @@ export default function Home() {
               <span className="text-4xl opacity-40">📂</span>
             </div>
             <p className="text-sm font-medium">从左侧选择一个文件</p>
-            <p className="text-xs text-stone-300">浏览你的 Agent 配置文件</p>
+            <p className="text-xs text-stone-300">查看你的 Agent 怎么认识你</p>
           </div>
         )}
       </main>
 
-      {/* Right: Persona Form + Pet */}
+      {/* Right: Ghost Builder / Pet Companion */}
       <aside className="w-[420px] flex flex-col border-l border-amber-100">
-        <div className="h-[62%] overflow-hidden">
-          <PersonaForm
-            activeFile={activeFile}
-            onInjected={() => setRefreshKey(k => k + 1)}
-          />
+        {/* Tab Switcher */}
+        <div className="flex border-b border-amber-100 bg-[#fbf3e4]">
+          <button
+            onClick={() => setRightTab('ghost')}
+            className={`flex-1 py-3 text-sm font-bold transition ${
+              rightTab === 'ghost'
+                ? 'text-amber-800 border-b-2 border-amber-500'
+                : 'text-stone-400 hover:text-amber-600'
+            }`}>
+            👻 Ghost in the Shell
+          </button>
+          <button
+            onClick={() => setRightTab('pet')}
+            className={`flex-1 py-3 text-sm font-bold transition ${
+              rightTab === 'pet'
+                ? 'text-amber-800 border-b-2 border-amber-500'
+                : 'text-stone-400 hover:text-amber-600'
+            }`}>
+            🐣 伙伴终端
+          </button>
         </div>
-        <div className="h-[38%] p-3 bg-[#f5edde]">
-          <PetCompanion />
+
+        {/* Content */}
+        <div className="flex-1 overflow-hidden">
+          {rightTab === 'ghost' ? (
+            <GhostBuilder activeFile={activeFile} files={files} onInjected={() => setRefreshKey(k => k + 1)} />
+          ) : (
+            <div className="h-full p-3 bg-[#f5edde]">
+              <PetCompanion />
+            </div>
+          )}
         </div>
       </aside>
     </div>
