@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Editor from '@monaco-editor/react';
 import { DiscoveredFile } from '@/lib/discovery';
-import { Save, AlertTriangle, Check } from 'lucide-react';
+import { Save, AlertTriangle, Check, Info } from 'lucide-react';
 
 interface Props {
   file: DiscoveredFile;
@@ -41,13 +41,18 @@ export function MonacoPane({ file, refreshKey }: Props) {
 
   return (
     <div className="flex-1 flex flex-col h-full bg-white/40 backdrop-blur-sm">
-      {/* Header bar */}
-      <div className="h-12 border-b border-amber-100 flex items-center justify-between px-5 bg-[#fbf3e4]/80">
-        <span className="text-xs font-mono text-stone-400 truncate max-w-[65%]">{file.path}</span>
-        <div className="flex items-center gap-3">
-          {file.isReadonly && (
-            <span className="text-[10px] bg-stone-200 text-stone-500 px-3 py-1 rounded-full font-semibold uppercase tracking-wider">只读</span>
-          )}
+      {/* File info header */}
+      <div className="border-b border-amber-100 bg-[#fbf3e4]/80 px-5 py-3">
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-amber-900 font-headline">{file.displayName}</span>
+            {file.injectable && (
+              <span className="text-[9px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-semibold">可注入</span>
+            )}
+            {file.isReadonly && (
+              <span className="text-[9px] bg-stone-200 text-stone-500 px-2 py-0.5 rounded-full font-semibold">只读</span>
+            )}
+          </div>
           {!file.isReadonly && (
             <button
               onClick={save}
@@ -61,12 +66,17 @@ export function MonacoPane({ file, refreshKey }: Props) {
             </button>
           )}
         </div>
+        <div className="flex items-center gap-1.5 text-[11px] text-stone-400">
+          <Info size={10} />
+          <span>{file.description}</span>
+        </div>
+        <div className="text-[10px] text-stone-300 font-mono mt-1 truncate">{file.path}</div>
       </div>
 
       {/* Warning banner */}
       {file.warning && (
         <div className="bg-amber-50 text-amber-700 text-xs p-3 flex items-center gap-2 border-b border-amber-100">
-          <AlertTriangle size={14} /> {file.warning}
+          <AlertTriangle size={14} className="shrink-0" /> {file.warning}
         </div>
       )}
 
