@@ -10,24 +10,32 @@ export interface PersonaData {
 }
 
 /**
- * Claude Code injection: append or replace `## SoulShell Persona` block at end of CLAUDE.md.
- * Non-destructive — user's existing content is preserved.
+ * Claude Code 注入：追加或替换 CLAUDE.md 底部的 `## SoulShell Persona` 块。
+ * 非破坏性——用户原有内容完整保留。
  */
 export async function injectClaudeCode(filePath: string, data: PersonaData): Promise<void> {
   let content = '';
   try { content = await fs.readFile(filePath, 'utf-8'); } catch { /* new file */ }
 
   const block = `## SoulShell Persona
+
 <!-- SoulShell:start -->
-**Identity:** ${data.identity}
 
-**Communication:** ${data.communication}
+### 身份
+${data.identity}
 
-**Work Mode:** ${data.workMode}
+### 沟通风格
+${data.communication}
 
-**Forbidden:** ${data.forbidden}
+### 工作模式
+${data.workMode}
 
-**Expertise:** ${data.expertise}
+### 禁令
+${data.forbidden}
+
+### 专长与上下文
+${data.expertise}
+
 <!-- SoulShell:end -->`;
 
   const regex = /## SoulShell Persona[\s\S]*?<!-- SoulShell:end -->/g;
@@ -44,32 +52,32 @@ export async function injectClaudeCode(filePath: string, data: PersonaData): Pro
 }
 
 /**
- * OpenClaw injection: overwrite SOUL.md and USER.md in target directory.
- * Creates .bak backup of existing files before overwriting.
+ * OpenClaw 注入：覆写 SOUL.md 和 USER.md。
+ * 注入前自动创建 .bak 备份。
  */
 export async function injectOpenClaw(baseDir: string, data: PersonaData): Promise<void> {
   const soulPath = path.join(baseDir, 'SOUL.md');
   const userPath = path.join(baseDir, 'USER.md');
 
-  // Backup existing files
+  // 备份已有文件
   for (const fp of [soulPath, userPath]) {
     try {
       const cur = await fs.readFile(fp, 'utf-8');
       await fs.writeFile(`${fp}.bak`, cur, 'utf-8');
-    } catch { /* no existing file to backup */ }
+    } catch { /* 无已有文件，跳过 */ }
   }
 
   const soulContent = `# Identity
 ${data.identity}
 
-# Style & Communication
+# Personality & Communication
 ${data.communication}
 
 # Forbidden
 ${data.forbidden}
 `;
 
-  const userContent = `# User Expertise
+  const userContent = `# User Profile & Expertise
 ${data.expertise}
 
 # Work Mode Preferences
@@ -79,11 +87,4 @@ ${data.workMode}
   await fs.mkdir(baseDir, { recursive: true });
   await fs.writeFile(soulPath, soulContent, 'utf-8');
   await fs.writeFile(userPath, userContent, 'utf-8');
-}
-
-/**
- * Codex injection: same append strategy as Claude Code, targeting AGENTS.md.
- */
-export async function injectCodex(filePath: string, data: PersonaData): Promise<void> {
-  await injectClaudeCode(filePath, data);
 }

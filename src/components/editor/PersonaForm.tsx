@@ -190,9 +190,13 @@ export function PersonaForm({ activeFile, onInjected }: Props) {
       {/* Inject Button */}
       <div className="mt-auto pt-3">
         {activeFile && (
-          <p className="text-[10px] text-stone-400 mb-2 text-center">
-            目标：<span className="text-amber-700 font-semibold">{activeFile.platform} / {activeFile.name}</span>
-          </p>
+          <div className="text-[10px] text-stone-400 mb-2 text-center space-y-0.5">
+            <p>目标：<span className="text-amber-700 font-semibold">{activeFile.platform} / {activeFile.name}</span></p>
+            <p className="text-stone-300">
+              {activeFile.platform === 'Claude Code' && '追加 ## SoulShell Persona 到文件底部，原有内容保留'}
+              {activeFile.platform === 'OpenClaw' && '覆写 SOUL.md + USER.md（自动备份 .bak）'}
+            </p>
+          </div>
         )}
         <button
           onClick={handleInject}
