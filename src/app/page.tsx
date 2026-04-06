@@ -106,7 +106,7 @@ export default function Home() {
             <GhostBuilder activeFile={activeFile} files={files} onInjected={() => setRefreshKey(k => k + 1)} />
           ) : (
             <div className="h-full p-3 bg-[#f5edde]">
-              <PetCompanion />
+              <PetCompanion files={files} />
             </div>
           )}
         </div>

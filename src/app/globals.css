@@ -47,6 +47,31 @@ body {
   animation: soul-pulse 4s infinite ease-in-out;
 }
 
+/* Float animation for pet creatures */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Egg crack shake */
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+.animate-shake {
+  animation: shake 0.4s ease-in-out infinite;
+}
+
+/* Hatching burst */
+@keyframes burst {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(3); opacity: 0; }
+}
+.animate-burst {
+  animation: burst 0.8s ease-out;
+}
+
 /* Custom range slider - warm organic style */
 input[type=range] {
   -webkit-appearance: none;
