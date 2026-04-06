@@ -117,8 +117,11 @@ export default function Home() {
   }
 
   // ─── 已孵化：编辑器工作区 ─────────────────────────
+  const savedCreature = typeof window !== 'undefined' ? localStorage.getItem('soulshell-creature') : null;
+  const savedPetName = typeof window !== 'undefined' ? localStorage.getItem('soulshell-pet-name') : null;
+
   return (
-    <div className="flex h-screen overflow-hidden bg-[#fff8ef]">
+    <div className="flex h-screen overflow-hidden bg-[#fff8ef] relative">
       <Sidebar files={files} activeId={activeFile?.id || null} onSelect={setActiveFile} />
 
       <main className="flex-1 flex flex-col">
@@ -136,14 +139,28 @@ export default function Home() {
       </main>
 
       <aside className="w-[420px] flex flex-col border-l border-amber-100">
+        {/* 宠物始终可见的头部 */}
+        {savedCreature && (
+          <div className="flex items-center gap-3 px-4 py-2 bg-[#fbf3e4] border-b border-amber-100">
+            <span className="text-2xl">
+              {savedCreature === 'dragon' ? '🐲' : savedCreature === 'cat' ? '🐱' : savedCreature === 'owl' ? '🦉' : savedCreature === 'spirit' ? '👻' : '🟢'}
+            </span>
+            <div className="flex-1">
+              <p className="text-xs font-bold text-amber-900">{savedPetName || '灵魂伙伴'}</p>
+              <p className="text-[9px] text-stone-400">如影随形 · 跨平台守护</p>
+            </div>
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+          </div>
+        )}
+
         <div className="flex border-b border-amber-100 bg-[#fbf3e4]">
           <button onClick={() => setRightTab('ghost')}
-            className={`flex-1 py-3 text-sm font-bold transition ${rightTab === 'ghost' ? 'text-amber-800 border-b-2 border-amber-500' : 'text-stone-400 hover:text-amber-600'}`}>
+            className={`flex-1 py-2.5 text-sm font-bold transition ${rightTab === 'ghost' ? 'text-amber-800 border-b-2 border-amber-500' : 'text-stone-400 hover:text-amber-600'}`}>
             👻 灵魂注入
           </button>
           <button onClick={() => setRightTab('pet')}
-            className={`flex-1 py-3 text-sm font-bold transition ${rightTab === 'pet' ? 'text-amber-800 border-b-2 border-amber-500' : 'text-stone-400 hover:text-amber-600'}`}>
-            🐣 伙伴终端
+            className={`flex-1 py-2.5 text-sm font-bold transition ${rightTab === 'pet' ? 'text-amber-800 border-b-2 border-amber-500' : 'text-stone-400 hover:text-amber-600'}`}>
+            💬 伙伴对话
           </button>
         </div>
         <div className="flex-1 overflow-hidden">

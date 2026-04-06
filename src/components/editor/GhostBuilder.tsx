@@ -273,11 +273,35 @@ export function GhostBuilder({ activeFile, files, onInjected }: Props) {
 
       {selected && (
         <div className="bg-white rounded-xl p-4 shadow-sm mb-4">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xl">{selected.icon}</span>
-            <span className="font-bold text-amber-900 text-sm">{selected.name}</span>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-2xl">{selected.icon}</span>
+            <div>
+              <span className="font-bold text-amber-900 text-sm">{selected.name}</span>
+              <p className="text-[11px] text-stone-500">{selected.tagline}</p>
+            </div>
           </div>
-          <p className="text-[11px] text-stone-500">{selected.description}</p>
+
+          {/* 灵魂预览——注入后各平台会变成什么样 */}
+          <div className="bg-amber-50 rounded-lg p-3 mb-3">
+            <p className="text-[10px] text-amber-800 font-bold mb-2">💫 灵魂预览（注入后生效内容）</p>
+            <div className="text-[11px] text-stone-600 space-y-1.5 leading-relaxed">
+              <p><span className="text-amber-700 font-semibold">身份：</span>{selected.soul.identity.substring(0, 80)}...</p>
+              <p><span className="text-amber-700 font-semibold">语言：</span>{selected.soul.voice.substring(0, 80)}...</p>
+              <p><span className="text-amber-700 font-semibold">红线：</span>{selected.soul.boundaries.substring(0, 80)}...</p>
+            </div>
+          </div>
+
+          {/* 注入前后对比 */}
+          <div className="grid grid-cols-2 gap-2 text-[10px]">
+            <div className="bg-red-50 rounded-lg p-2 border border-red-100">
+              <p className="text-red-600 font-bold mb-1">注入前</p>
+              <p className="text-red-800">Agent 使用默认人格，不认识你，不了解你的偏好</p>
+            </div>
+            <div className="bg-green-50 rounded-lg p-2 border border-green-100">
+              <p className="text-green-600 font-bold mb-1">注入后</p>
+              <p className="text-green-800">Agent 拥有定制灵魂，如影随形，跨平台一致体验</p>
+            </div>
+          </div>
         </div>
       )}
 
@@ -315,18 +339,26 @@ export function GhostBuilder({ activeFile, files, onInjected }: Props) {
 
       {/* 注入按钮 */}
       <div className="mt-auto pt-3">
+        {injected && (
+          <div className="mb-4 bg-gradient-to-r from-amber-100 to-green-100 rounded-xl p-4 text-center animate-[pulse_2s_ease-in-out_infinite]">
+            <div className="text-3xl mb-2">✨</div>
+            <p className="text-amber-900 font-bold font-headline">灵魂已注入！</p>
+            <p className="text-xs text-stone-600 mt-1">你的 AI 工具已拥有新的灵魂。下次对话即刻生效。</p>
+            <p className="text-[10px] text-amber-600 mt-2 font-semibold">一个灵魂，如影随形。</p>
+          </div>
+        )}
         <button onClick={handleInject}
-          disabled={targets.size === 0 || !selected || injecting}
+          disabled={targets.size === 0 || !selected || injecting || injected}
           className={`w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2 transition-all ${
             injected
-              ? 'bg-green-100 text-green-700'
+              ? 'bg-green-600 text-white'
               : targets.size > 0 && selected
                 ? 'bg-gradient-to-r from-amber-700 to-amber-400 text-white shadow-xl shadow-amber-200/50 hover:scale-[1.02] active:scale-95'
-                : 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                : 'bg-stone-300 text-stone-500 cursor-not-allowed'
           }`}>
           {injected
-            ? <><Check size={16} /> 灵魂已注入 {targets.size} 个目标！</>
-            : <><Zap size={16} /> {injecting ? '注入中...' : `注入到 ${targets.size} 个目标`}</>}
+            ? <><Check size={16} /> 灵魂已注入 {targets.size} 个平台</>
+            : <><Zap size={16} /> {injecting ? '正在注入灵魂...' : `注入灵魂到 ${targets.size} 个平台`}</>}
         </button>
       </div>
     </div>

@@ -145,3 +145,9 @@ input[type=range]::-moz-range-thumb {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #d0c6ab; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #b8ad90; }
+
+/* 全局文本可读性修复 */
+.text-stone-300 { color: #78716c !important; }
+.text-stone-400 { color: #57534e !important; }
+.text-\[9px\] { font-size: 10px !important; }
+.text-\[10px\] { font-size: 11px !important; }

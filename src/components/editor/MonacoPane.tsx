@@ -95,16 +95,16 @@ export function MonacoPane({ file, refreshKey }: Props) {
             {!file.isReadonly && (
               <button onClick={toggleHistory}
                 className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition ${
-                  showHistory ? 'bg-amber-200 text-amber-800' : 'bg-amber-50 text-amber-600 hover:bg-amber-100'
+                  showHistory ? 'bg-amber-600 text-white' : 'bg-amber-100 text-amber-800 hover:bg-amber-200'
                 }`}>
-                <History size={12} /> 历史
+                <History size={12} /> 历史回退
               </button>
             )}
             {/* 保存按钮 */}
             {!file.isReadonly && (
               <button onClick={save}
                 className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
-                  saved ? 'bg-green-100 text-green-700' : 'bg-amber-600 hover:bg-amber-500 text-white shadow-sm shadow-amber-200'
+                  saved ? 'bg-green-600 text-white' : 'bg-amber-600 hover:bg-amber-500 text-white shadow-sm'
                 }`}>
                 {saved ? <><Check size={14} /> 已保存</> : <><Save size={14} /> 保存</>}
               </button>
