@@ -1,87 +1,129 @@
 'use client';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { DiscoveredFile } from '@/lib/discovery';
-import { GHOST_TEMPLATES, GhostTemplate } from '@/lib/ghost-templates';
-import { Zap, Check, ChevronRight, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Check, Eye, EyeOff, Zap } from 'lucide-react';
+
+interface PersonaData {
+  id: string;
+  name: string;
+  scene: string;
+  tone: string;
+  boundaries: string;
+  goal: string;
+  memoryModuleIds: string[];
+}
+
+interface SoulCoreData {
+  name: string;
+  identity: string;
+  spirit: string;
+  boundaries: string;
+  summary: string;
+}
+
+interface MemoryModuleData {
+  id: string;
+  label: string;
+  source: string;
+  summary: string;
+}
 
 interface Props {
   activeFile: DiscoveredFile | null;
   files: DiscoveredFile[];
+  masks: PersonaData[];
+  selectedMaskId: string;
+  soulCore: SoulCoreData;
+  memoryModules: MemoryModuleData[];
+  onSelectMask: (maskId: string) => void;
   onInjected: () => void;
 }
 
-type Step = 'gallery' | 'customize' | 'scope' | 'inject';
+type Step = 'mask' | 'scope' | 'inject';
 
-// 场景暴露矩阵
 interface ScopeRow {
   scene: string;
   identity: boolean;
   voice: boolean;
-  beliefs: boolean;
+  memory: boolean;
   boundaries: boolean;
 }
 
-export function GhostBuilder({ activeFile, files, onInjected }: Props) {
-  const [step, setStep] = useState<Step>('gallery');
-  const [selected, setSelected] = useState<GhostTemplate | null>(null);
-
-  // 自定义素材
-  const [userIdentity, setUserIdentity] = useState('');
-  const [userMaterials, setUserMaterials] = useState('');
-
-  // 场景暴露矩阵
+export function GhostBuilder({
+  activeFile,
+  files,
+  masks,
+  selectedMaskId,
+  soulCore,
+  memoryModules,
+  onSelectMask,
+  onInjected,
+}: Props) {
+  const [step, setStep] = useState<Step>('mask');
   const [scopes, setScopes] = useState<ScopeRow[]>([
-    { scene: '工作/编码', identity: true, voice: true, beliefs: true, boundaries: true },
-    { scene: '私人/日常', identity: true, voice: true, beliefs: false, boundaries: true },
-    { scene: '创作/写作', identity: true, voice: false, beliefs: true, boundaries: false },
+    { scene: '当前平台', identity: true, voice: true, memory: true, boundaries: true },
+    { scene: '跨平台同步', identity: true, voice: true, memory: false, boundaries: true },
+    { scene: '敏感场景', identity: true, voice: false, memory: false, boundaries: true },
   ]);
-
-  // 注入目标
-  const injectableFiles = files.filter(f => f.injectable && f.exists);
   const [targets, setTargets] = useState<Set<string>>(new Set());
-
   const [injecting, setInjecting] = useState(false);
   const [injected, setInjected] = useState(false);
 
+  const selectedMask = masks.find((mask) => mask.id === selectedMaskId) || masks[0] || null;
+  const activeModules = useMemo(
+    () => memoryModules.filter((module) => selectedMask?.memoryModuleIds.includes(module.id)),
+    [memoryModules, selectedMask],
+  );
+  const injectableFiles = files.filter((file) => file.injectable && file.exists);
+
   const toggleTarget = (id: string) => {
-    setTargets(prev => {
+    setTargets((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
 
   const toggleScope = (rowIdx: number, field: keyof Omit<ScopeRow, 'scene'>) => {
-    setScopes(prev => prev.map((r, i) =>
-      i === rowIdx ? { ...r, [field]: !r[field] } : r
-    ));
+    setScopes((prev) => prev.map((row, index) => (index === rowIdx ? { ...row, [field]: !row[field] } : row)));
   };
 
   const buildPersona = () => {
-    if (!selected) return null;
+    if (!selectedMask) return null;
+
     return {
-      identity: selected.soul.identity + (userIdentity ? `\n\n关于用户：${userIdentity}` : ''),
-      communication: selected.soul.voice,
-      workMode: `核心信念：${selected.soul.coreBeliefs}`,
-      forbidden: selected.soul.boundaries,
-      expertise: userMaterials || '（用户未填写）',
+      identity: `${soulCore.name}\n\n${soulCore.identity}\n\n场景面具：${selectedMask.name} / ${selectedMask.scene}`,
+      communication: selectedMask.tone,
+      workMode: `目标：${selectedMask.goal}\n\n记忆模块：${
+        activeModules.map((module) => `${module.label}（${module.source}）`).join('、') || '未选择'
+      }`,
+      forbidden: `${soulCore.boundaries}\n\n场景边界：${selectedMask.boundaries}`,
+      expertise: `${soulCore.summary}\n\n精神意象：${soulCore.spirit}`,
     };
   };
 
   const handleInject = async () => {
     const persona = buildPersona();
     if (!persona || targets.size === 0) return;
+
     setInjecting(true);
     try {
       for (const targetId of targets) {
-        const file = files.find(f => f.id === targetId);
+        const file = files.find((item) => item.id === targetId);
         if (!file) continue;
+
         await fetch('/api/inject', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ platform: file.platform, targetPath: file.path, persona }),
+          body: JSON.stringify({
+            platform: file.platform,
+            targetPath: file.path,
+            persona,
+          }),
         });
       }
+
       setInjected(true);
       onInjected();
       setTimeout(() => setInjected(false), 3000);
@@ -90,151 +132,126 @@ export function GhostBuilder({ activeFile, files, onInjected }: Props) {
     }
   };
 
-  // ── Step 1: 模板画廊 ──
-  if (step === 'gallery') {
+  if (!selectedMask) {
     return (
-      <div className="flex flex-col h-full overflow-y-auto p-5 bg-[#fbf3e4]/60">
-        <div className="mb-4">
-          <h3 className="text-lg font-extrabold text-amber-900 font-headline">Ghost in the Shell</h3>
-          <p className="text-xs text-stone-400">选择一个灵魂模板作为起点 · 致敬攻壳机动队</p>
-        </div>
-
-        <div className="space-y-3 flex-1">
-          {GHOST_TEMPLATES.map(t => (
-            <button
-              key={t.id}
-              onClick={() => { setSelected(t); setStep('customize'); }}
-              className={`w-full text-left p-4 rounded-xl transition-all group ${
-                selected?.id === t.id
-                  ? 'bg-gradient-to-r from-amber-100 to-amber-50 border-2 border-amber-400'
-                  : 'bg-white hover:bg-amber-50/80 border border-amber-100 hover:border-amber-300'
-              }`}
-            >
-              <div className="flex items-center gap-3 mb-1">
-                <span className="text-xl">{t.icon}</span>
-                <span className="font-bold text-amber-900 text-sm">{t.name}</span>
-                <ChevronRight size={14} className="ml-auto text-stone-300 group-hover:text-amber-500 transition" />
-              </div>
-              <p className="text-[11px] text-stone-400 pl-9">{t.tagline}</p>
-              <div className="flex gap-1.5 pl-9 mt-2">
-                {t.scenes.map(s => (
-                  <span key={s} className="text-[9px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">{s}</span>
-                ))}
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* 前置层占位 */}
-        <div className="mt-4 p-4 border border-dashed border-amber-200 rounded-xl bg-amber-50/30">
-          <p className="text-[10px] text-amber-600 font-bold uppercase tracking-wider mb-2">灵魂原料 · 记忆层接入（即将推出）</p>
-          <div className="flex flex-wrap gap-2 mb-2">
-            {['mem0', 'Second Me', 'memsearch', 'Twitter', '小红书', 'Obsidian'].map(name => (
-              <span key={name} className="text-[10px] px-2 py-1 bg-white/60 rounded-full text-stone-400 border border-amber-100">{name}</span>
-            ))}
-          </div>
-          <p className="text-[9px] text-stone-300">导入更丰富的记忆源，让构建的灵魂更贴合真实的你</p>
-        </div>
+      <div className="flex h-full items-center justify-center bg-[#fbf3e4]/60 p-6 text-center text-sm leading-7 text-stone-500">
+        先去 Persona 面具页面创建至少一个面具，再回来进行注入。
       </div>
     );
   }
 
-  // ── Step 2: 个性化定制 ──
-  if (step === 'customize' && selected) {
+  if (step === 'mask') {
     return (
-      <div className="flex flex-col h-full overflow-y-auto p-5 bg-[#fbf3e4]/60">
-        <button onClick={() => setStep('gallery')} className="flex items-center gap-1 text-xs text-stone-400 hover:text-amber-700 mb-3 transition">
-          <ArrowLeft size={12} /> 返回模板
-        </button>
-
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-2xl">{selected.icon}</span>
-          <div>
-            <h3 className="font-bold text-amber-900 font-headline">{selected.name}</h3>
-            <p className="text-[10px] text-stone-400">{selected.nameEn}</p>
-          </div>
-        </div>
-
-        {/* 预览人格核心 */}
-        <div className="bg-white rounded-xl p-4 shadow-sm mb-4 text-xs text-stone-600 leading-relaxed">
-          <p className="text-[10px] text-amber-600 font-bold uppercase mb-2">灵魂预览</p>
-          <p className="mb-2"><span className="text-amber-800 font-semibold">身份：</span>{selected.soul.identity}</p>
-          <p className="mb-2"><span className="text-amber-800 font-semibold">语言：</span>{selected.soul.voice}</p>
-          <p><span className="text-amber-800 font-semibold">红线：</span>{selected.soul.boundaries}</p>
-        </div>
-
-        {/* 行为校准对比 */}
-        <div className="bg-white rounded-xl p-4 shadow-sm mb-4">
-          <p className="text-[10px] text-amber-600 font-bold uppercase mb-2">行为校准（好/坏对比）</p>
-          <div className="space-y-2 text-[11px]">
-            <div className="bg-green-50 rounded-lg p-3 border border-green-100">
-              <p className="text-green-700 font-semibold text-[10px] mb-1">✓ 好的回答</p>
-              <p className="text-green-900 whitespace-pre-line">{selected.examples.good}</p>
-            </div>
-            <div className="bg-red-50 rounded-lg p-3 border border-red-100">
-              <p className="text-red-700 font-semibold text-[10px] mb-1">✗ 坏的回答</p>
-              <p className="text-red-900 whitespace-pre-line">{selected.examples.bad}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* 个人素材 */}
+      <div className="flex h-full flex-col overflow-y-auto bg-[#fbf3e4]/60 p-5">
         <div className="mb-4">
-          <label className="block text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-1">你的身份（可选）</label>
-          <textarea value={userIdentity} onChange={e => setUserIdentity(e.target.value)}
-            placeholder="你是谁？你希望 AI 怎么对待你？"
-            className="w-full bg-white border-none rounded-xl p-3 text-sm text-stone-700 min-h-[48px] focus:ring-2 focus:ring-amber-300 outline-none resize-y shadow-sm" />
+          <h3 className="font-headline text-lg font-extrabold text-amber-900">Ghost In The Shell</h3>
+          <p className="text-[11px] text-stone-400">
+            这里不再维护另一套人格。Ghost 直接使用 Persona 页面定义的 Soul Core 与 Persona 面具。
+          </p>
         </div>
 
-        <div className="mb-4">
-          <label className="block text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-1">补充素材（可选）</label>
-          <textarea value={userMaterials} onChange={e => setUserMaterials(e.target.value)}
-            placeholder="粘贴你的自我介绍、社交媒体 bio、或者技术栈..."
-            className="w-full bg-white border-none rounded-xl p-3 text-sm text-stone-700 min-h-[48px] focus:ring-2 focus:ring-amber-300 outline-none resize-y shadow-sm" />
+        <div className="rounded-xl border border-amber-200 bg-white p-4 shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700">共享 Soul Core</p>
+          <p className="mt-2 text-sm font-extrabold text-amber-950">{soulCore.name}</p>
+          <p className="mt-2 text-xs leading-6 text-stone-600">{soulCore.identity}</p>
+          <p className="mt-2 text-xs leading-6 text-stone-500">{soulCore.spirit}</p>
         </div>
 
-        <button onClick={() => setStep('scope')}
-          className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-400 rounded-full text-white font-bold text-sm shadow-lg shadow-amber-200/50 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
-          下一步：场景控制 <ChevronRight size={16} />
+        <div className="mt-4 flex-1 space-y-3">
+          {masks.map((mask) => {
+            const isSelected = mask.id === selectedMaskId;
+            const linkedModules = memoryModules.filter((module) => mask.memoryModuleIds.includes(module.id));
+
+            return (
+              <button
+                key={mask.id}
+                onClick={() => onSelectMask(mask.id)}
+                className={`w-full rounded-xl border p-4 text-left transition ${
+                  isSelected ? 'border-amber-300 bg-white shadow-sm' : 'border-amber-100 bg-white/80 hover:border-amber-200'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-extrabold text-amber-950">{mask.name}</p>
+                    <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-amber-700">{mask.scene}</p>
+                  </div>
+                  {isSelected && (
+                    <div className="rounded-full bg-amber-900 px-2.5 py-1 text-[10px] font-bold text-white">
+                      当前使用
+                    </div>
+                  )}
+                </div>
+                <p className="mt-3 text-xs leading-6 text-stone-600">{mask.tone}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {linkedModules.map((module) => (
+                    <span
+                      key={module.id}
+                      className="rounded-full bg-[#fbf3e4] px-3 py-1 text-[10px] font-bold text-stone-700"
+                    >
+                      {module.label}
+                    </span>
+                  ))}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        <button
+          onClick={() => setStep('scope')}
+          className="mt-4 w-full rounded-full bg-gradient-to-r from-amber-700 to-amber-400 py-3 text-sm font-bold text-white shadow-lg shadow-amber-200/50 transition hover:scale-[1.02] active:scale-95"
+        >
+          下一步：场景暴露控制
         </button>
       </div>
     );
   }
 
-  // ── Step 3: 场景暴露矩阵 ──
-  if (step === 'scope' && selected) {
+  if (step === 'scope') {
     return (
-      <div className="flex flex-col h-full overflow-y-auto p-5 bg-[#fbf3e4]/60">
-        <button onClick={() => setStep('customize')} className="flex items-center gap-1 text-xs text-stone-400 hover:text-amber-700 mb-3 transition">
-          <ArrowLeft size={12} /> 返回定制
+      <div className="flex h-full flex-col overflow-y-auto bg-[#fbf3e4]/60 p-5">
+        <button
+          onClick={() => setStep('mask')}
+          className="mb-3 flex items-center gap-1 text-xs text-stone-400 transition hover:text-amber-700"
+        >
+          <ArrowLeft size={12} /> 返回面具
         </button>
 
         <div className="mb-4">
-          <h3 className="font-bold text-amber-900 font-headline">场景暴露矩阵</h3>
-          <p className="text-[10px] text-stone-400">控制不同场景下暴露哪些人格维度</p>
+          <h3 className="font-headline text-lg font-extrabold text-amber-900">场景暴露矩阵</h3>
+          <p className="text-[11px] text-stone-400">
+            同一个 Persona 面具，在不同场景下可以暴露不同程度的身份、语气、记忆和边界。
+          </p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm mb-4 overflow-x-auto">
+        <div className="rounded-xl border border-amber-100 bg-white p-4 shadow-sm">
+          <p className="text-sm font-extrabold text-amber-950">{selectedMask.name}</p>
+          <p className="mt-2 text-xs leading-6 text-stone-600">{selectedMask.goal}</p>
+        </div>
+
+        <div className="mt-4 overflow-x-auto rounded-xl border border-amber-100 bg-white p-4 shadow-sm">
           <table className="w-full text-xs">
             <thead>
-              <tr className="text-[10px] text-amber-700 font-bold uppercase">
-                <th className="text-left py-2 pr-2">场景</th>
-                <th className="text-center py-2 px-1">身份</th>
-                <th className="text-center py-2 px-1">语言</th>
-                <th className="text-center py-2 px-1">信念</th>
-                <th className="text-center py-2 px-1">红线</th>
+              <tr className="text-[10px] font-bold uppercase text-amber-700">
+                <th className="py-2 pr-2 text-left">场景</th>
+                <th className="px-1 py-2 text-center">身份</th>
+                <th className="px-1 py-2 text-center">语气</th>
+                <th className="px-1 py-2 text-center">记忆</th>
+                <th className="px-1 py-2 text-center">边界</th>
               </tr>
             </thead>
             <tbody>
-              {scopes.map((row, i) => (
+              {scopes.map((row, rowIndex) => (
                 <tr key={row.scene} className="border-t border-amber-50">
                   <td className="py-2.5 pr-2 font-medium text-stone-600">{row.scene}</td>
-                  {(['identity', 'voice', 'beliefs', 'boundaries'] as const).map(field => (
-                    <td key={field} className="text-center py-2.5 px-1">
-                      <button onClick={() => toggleScope(i, field)}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center transition ${
+                  {(['identity', 'voice', 'memory', 'boundaries'] as const).map((field) => (
+                    <td key={field} className="px-1 py-2.5 text-center">
+                      <button
+                        onClick={() => toggleScope(rowIndex, field)}
+                        className={`flex h-7 w-7 items-center justify-center rounded-full transition ${
                           row[field] ? 'bg-amber-500 text-white' : 'bg-stone-100 text-stone-300'
-                        }`}>
+                        }`}
+                      >
                         {row[field] ? <Eye size={12} /> : <EyeOff size={12} />}
                       </button>
                     </td>
@@ -245,120 +262,136 @@ export function GhostBuilder({ activeFile, files, onInjected }: Props) {
           </table>
         </div>
 
-        <p className="text-[10px] text-stone-400 mb-4 leading-relaxed">
-          不同场景下，你的 AI 可以表现出不同的人格面。例如工作时严谨直接，私人场景时更加温暖随性。
-          <br />
-          <span className="text-amber-600">（黑客松 Demo：概念展示，后续版本将支持按项目/平台自动切换）</span>
-        </p>
+        <div className="mt-4 rounded-xl border border-amber-200 bg-white p-4 shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700">当前注入预览</p>
+          <div className="mt-3 space-y-2 text-xs leading-6 text-stone-700">
+            <p>共享内核：{soulCore.name}</p>
+            <p>场景面具：{selectedMask.name}</p>
+            <p>记忆模块：{activeModules.map((module) => module.label).join('、') || '未选择'}</p>
+            <p>边界：{selectedMask.boundaries}</p>
+          </div>
+        </div>
 
-        <button onClick={() => setStep('inject')}
-          className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-400 rounded-full text-white font-bold text-sm shadow-lg shadow-amber-200/50 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
-          下一步：注入灵魂 <Zap size={16} />
+        <button
+          onClick={() => setStep('inject')}
+          className="mt-4 w-full rounded-full bg-gradient-to-r from-amber-700 to-amber-400 py-3 text-sm font-bold text-white shadow-lg shadow-amber-200/50 transition hover:scale-[1.02] active:scale-95"
+        >
+          下一步：注入灵魂
         </button>
       </div>
     );
   }
 
-  // ── Step 4: 多平台注入 ──
   return (
-    <div className="flex flex-col h-full overflow-y-auto p-5 bg-[#fbf3e4]/60">
-      <button onClick={() => setStep('scope')} className="flex items-center gap-1 text-xs text-stone-400 hover:text-amber-700 mb-3 transition">
+    <div className="flex h-full flex-col overflow-y-auto bg-[#fbf3e4]/60 p-5">
+      <button
+        onClick={() => setStep('scope')}
+        className="mb-3 flex items-center gap-1 text-xs text-stone-400 transition hover:text-amber-700"
+      >
         <ArrowLeft size={12} /> 返回场景
       </button>
 
       <div className="mb-4">
-        <h3 className="font-bold text-amber-900 font-headline">注入灵魂</h3>
-        <p className="text-[10px] text-stone-400">选择要注入的目标，一键让灵魂如影随形</p>
+        <h3 className="font-headline text-lg font-extrabold text-amber-900">注入灵魂</h3>
+        <p className="text-[11px] text-stone-400">
+          使用 Persona 页面已经定义好的面具，把同一套人格结构注入到目标 Agent。
+        </p>
       </div>
 
-      {selected && (
-        <div className="bg-white rounded-xl p-4 shadow-sm mb-4">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-2xl">{selected.icon}</span>
-            <div>
-              <span className="font-bold text-amber-900 text-sm">{selected.name}</span>
-              <p className="text-[11px] text-stone-500">{selected.tagline}</p>
-            </div>
-          </div>
-
-          {/* 灵魂预览——注入后各平台会变成什么样 */}
-          <div className="bg-amber-50 rounded-lg p-3 mb-3">
-            <p className="text-[10px] text-amber-800 font-bold mb-2">💫 灵魂预览（注入后生效内容）</p>
-            <div className="text-[11px] text-stone-600 space-y-1.5 leading-relaxed">
-              <p><span className="text-amber-700 font-semibold">身份：</span>{selected.soul.identity.substring(0, 80)}...</p>
-              <p><span className="text-amber-700 font-semibold">语言：</span>{selected.soul.voice.substring(0, 80)}...</p>
-              <p><span className="text-amber-700 font-semibold">红线：</span>{selected.soul.boundaries.substring(0, 80)}...</p>
-            </div>
-          </div>
-
-          {/* 注入前后对比 */}
-          <div className="grid grid-cols-2 gap-2 text-[10px]">
-            <div className="bg-red-50 rounded-lg p-2 border border-red-100">
-              <p className="text-red-600 font-bold mb-1">注入前</p>
-              <p className="text-red-800">Agent 使用默认人格，不认识你，不了解你的偏好</p>
-            </div>
-            <div className="bg-green-50 rounded-lg p-2 border border-green-100">
-              <p className="text-green-600 font-bold mb-1">注入后</p>
-              <p className="text-green-800">Agent 拥有定制灵魂，如影随形，跨平台一致体验</p>
-            </div>
+      <div className="rounded-xl border border-amber-100 bg-white p-4 shadow-sm">
+        <p className="text-sm font-extrabold text-amber-950">{selectedMask.name}</p>
+        <p className="mt-2 text-xs leading-6 text-stone-600">{selectedMask.scene}</p>
+        <div className="mt-3 rounded-lg bg-amber-50 p-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-800">灵魂预览</p>
+          <div className="mt-2 space-y-1.5 text-[11px] leading-relaxed text-stone-700">
+            <p>
+              <span className="font-semibold text-amber-700">Soul Core：</span>
+              {soulCore.name}
+            </p>
+            <p>
+              <span className="font-semibold text-amber-700">语气：</span>
+              {selectedMask.tone}
+            </p>
+            <p>
+              <span className="font-semibold text-amber-700">记忆模块：</span>
+              {activeModules.map((module) => module.label).join('、') || '未选择'}
+            </p>
+            <p>
+              <span className="font-semibold text-amber-700">边界：</span>
+              {selectedMask.boundaries}
+            </p>
+            {activeFile && (
+              <p>
+                <span className="font-semibold text-amber-700">当前文件：</span>
+                {activeFile.displayName}
+              </p>
+            )}
           </div>
         </div>
-      )}
+      </div>
 
-      {/* 注入目标选择 */}
-      <div className="mb-4">
-        <p className="text-[10px] text-amber-700 font-bold uppercase mb-2">选择注入目标</p>
+      <div className="mt-4">
+        <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700">选择注入目标</p>
         <div className="space-y-2">
-          {injectableFiles.map(file => (
-            <button key={file.id}
+          {injectableFiles.map((file) => (
+            <button
+              key={file.id}
               onClick={() => toggleTarget(file.id)}
-              className={`w-full flex items-center gap-3 p-3 rounded-xl text-left text-xs transition ${
-                targets.has(file.id)
-                  ? 'bg-amber-100 border-2 border-amber-400'
-                  : 'bg-white border border-amber-100 hover:border-amber-300'
-              }`}>
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                targets.has(file.id) ? 'bg-amber-500 text-white' : 'bg-stone-100 text-stone-300'
-              }`}>
-                {targets.has(file.id) ? '✓' : ''}
-              </div>
-              <div>
-                <p className="font-semibold text-stone-700">{file.platform} · {file.displayName}</p>
-                <p className="text-[10px] text-stone-400">
-                  {file.platform === 'Claude Code' ? '追加到文件底部，原内容保留' : '覆写并自动备份 .bak'}
-                </p>
+              className={`w-full rounded-xl border p-3 text-left text-xs transition ${
+                targets.has(file.id) ? 'border-amber-300 bg-amber-100' : 'border-amber-100 bg-white hover:border-amber-200'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] ${
+                    targets.has(file.id) ? 'bg-amber-500 text-white' : 'bg-stone-100 text-stone-300'
+                  }`}
+                >
+                  {targets.has(file.id) ? '✓' : ''}
+                </div>
+                <div>
+                  <p className="font-semibold text-stone-700">
+                    {file.platform} · {file.displayName}
+                  </p>
+                  <p className="text-[10px] text-stone-400">
+                    仅替换 SoulShell 注入区块，不覆盖原文件正文。
+                  </p>
+                </div>
               </div>
             </button>
           ))}
-
-          {injectableFiles.length === 0 && (
-            <p className="text-xs text-stone-400 text-center py-4">未发现可注入的文件。请确认 Claude Code 或 OpenClaw 已安装。</p>
-          )}
         </div>
       </div>
 
-      {/* 注入按钮 */}
-      <div className="mt-auto pt-3">
+      <div className="mt-auto pt-4">
         {injected && (
-          <div className="mb-4 bg-gradient-to-r from-amber-100 to-green-100 rounded-xl p-4 text-center animate-[pulse_2s_ease-in-out_infinite]">
-            <div className="text-3xl mb-2">✨</div>
-            <p className="text-amber-900 font-bold font-headline">灵魂已注入！</p>
-            <p className="text-xs text-stone-600 mt-1">你的 AI 工具已拥有新的灵魂。下次对话即刻生效。</p>
-            <p className="text-[10px] text-amber-600 mt-2 font-semibold">一个灵魂，如影随形。</p>
+          <div className="mb-4 rounded-xl bg-gradient-to-r from-amber-100 to-green-100 p-4 text-center">
+            <div className="mb-2 text-3xl">✓</div>
+            <p className="font-headline font-bold text-amber-900">灵魂已注入</p>
+            <p className="mt-1 text-xs text-stone-600">注入内容来自 Persona 页面正在管理的同一张面具。</p>
           </div>
         )}
-        <button onClick={handleInject}
-          disabled={targets.size === 0 || !selected || injecting || injected}
-          className={`w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2 transition-all ${
+
+        <button
+          onClick={handleInject}
+          disabled={targets.size === 0 || injecting || injected}
+          className={`w-full rounded-full py-3.5 text-sm font-bold transition-all ${
             injected
               ? 'bg-green-600 text-white'
-              : targets.size > 0 && selected
+              : targets.size > 0
                 ? 'bg-gradient-to-r from-amber-700 to-amber-400 text-white shadow-xl shadow-amber-200/50 hover:scale-[1.02] active:scale-95'
-                : 'bg-stone-300 text-stone-500 cursor-not-allowed'
-          }`}>
-          {injected
-            ? <><Check size={16} /> 灵魂已注入 {targets.size} 个平台</>
-            : <><Zap size={16} /> {injecting ? '正在注入灵魂...' : `注入灵魂到 ${targets.size} 个平台`}</>}
+                : 'cursor-not-allowed bg-stone-300 text-stone-500'
+          }`}
+        >
+          {injected ? (
+            <span className="inline-flex items-center gap-2">
+              <Check size={16} /> 灵魂已注入 {targets.size} 个目标
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-2">
+              <Zap size={16} /> {injecting ? '正在注入灵魂...' : `注入灵魂到 ${targets.size} 个目标`}
+            </span>
+          )}
         </button>
       </div>
     </div>

@@ -13,11 +13,12 @@ interface Props {
   files?: DiscoveredFile[];
   onHatched?: () => void;
   fullscreenMode?: boolean;
+  usePersistedState?: boolean;
 }
 
 type PetState = 'egg' | 'hatching' | 'selecting' | 'alive';
 
-export function PetCompanion({ files = [], onHatched, fullscreenMode }: Props) {
+export function PetCompanion({ files = [], onHatched, fullscreenMode, usePersistedState = true }: Props) {
   const [petState, setPetState] = useState<PetState>('egg');
   const [creature, setCreature] = useState<CreatureType>('dragon');
   const [petName, setPetName] = useState('');
@@ -29,6 +30,7 @@ export function PetCompanion({ files = [], onHatched, fullscreenMode }: Props) {
 
   // 启动时检查 localStorage，如果已孵化直接进 alive
   useEffect(() => {
+    if (!usePersistedState) return;
     const savedCreature = localStorage.getItem('soulshell-creature') as CreatureType | null;
     const savedName = localStorage.getItem('soulshell-pet-name');
     if (savedCreature) {
@@ -38,7 +40,7 @@ export function PetCompanion({ files = [], onHatched, fullscreenMode }: Props) {
       const name = savedName || CREATURES[savedCreature].label;
       setLog([{ role: 'pet', text: `你好！我是 ${name}，你的灵魂伙伴。随时和我聊天，或者去灵魂注入给我配置人格。` }]);
     }
-  }, []);
+  }, [usePersistedState]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -61,8 +63,10 @@ export function PetCompanion({ files = [], onHatched, fullscreenMode }: Props) {
 
   const confirmCreature = () => {
     const name = petName || CREATURES[creature].label;
-    localStorage.setItem('soulshell-creature', creature);
-    localStorage.setItem('soulshell-pet-name', name);
+    if (usePersistedState) {
+      localStorage.setItem('soulshell-creature', creature);
+      localStorage.setItem('soulshell-pet-name', name);
+    }
     setPetState('alive');
     setLog([{ role: 'pet', text: `* 破壳 * 你好！我是 ${name}，你的灵魂伙伴。用上方的灵魂注入给我注入灵魂，或者直接和我聊天吧。` }]);
     onHatched?.();

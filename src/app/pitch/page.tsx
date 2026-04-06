@@ -1,18 +1,20 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 import {
   ArrowRight,
   Brain,
   FilePenLine,
   GitBranch,
   Layers3,
-  LockKeyhole,
   Orbit,
   ScanSearch,
   Sparkles,
   TerminalSquare,
 } from 'lucide-react';
+
+type MockTab = 'memory-connect' | 'incubator' | 'persona' | 'safety';
 
 const ecosystem = [
   {
@@ -49,24 +51,18 @@ const painPoints = [
   '更强的记忆层存在，但没有进入用户真正高频使用的日常工具。',
 ];
 
-const thesis = [
-  '我们的判断是，AI 时代真正稳定的产品结构会分成三层：记忆层、人格层、执行层。',
-  '记忆层负责沉淀你是谁，人格层负责组织这些记忆如何被表达，执行层负责在具体工具里替你行动。',
-  'SoulShell 插入的正是中间这一层：它不是记忆系统，也不是执行 Agent，而是一个跨记忆系统、跨执行 Agent 的人格终端。',
-];
-
 const threeLayers = [
   {
     name: '记忆层',
     tag: 'Memory Layer',
     body: '负责沉淀你是谁、你经历过什么、你长期在意什么，是灵魂形成前的原料层。',
-    products: ['mem0', 'mem9', 'Second Me'],
+    products: ['mem0', 'mem9', 'Second Me', 'Karpathy Obsidian'],
     accent: 'soft',
   },
   {
     name: '人格层',
     tag: 'Persona Layer',
-    body: '负责把分散记忆组织成一个可被理解、可被管理、可按场景暴露的人格终端。SoulShell 插入的就是这一层。',
+    body: '负责把分散记忆组织成一个可被理解、可被管理、可按场景暴露的人格终端。它既保留一个全局灵魂内核，也允许用户为不同场景编辑不同的人格面具。SoulShell 插入的就是这一层。',
     products: ['SoulShell'],
     accent: 'strong',
   },
@@ -83,7 +79,7 @@ const stackFlow = [
   {
     title: '前置层',
     subtitle: '灵魂原料',
-    body: 'mem0、mem9、Second Me，以及用户自己的社交媒体、知识库、项目资料。',
+    body: 'mem0、mem9、Second Me，以及用户自己的社交媒体、知识库、项目资料，比如 Karpathy 的个人 Obsidian 知识库。',
     icon: Layers3,
   },
   {
@@ -95,13 +91,13 @@ const stackFlow = [
   {
     title: 'Persona 面具',
     subtitle: '场景化人格',
-    body: '编程开发、陪伴对话、自媒体创作，可以暴露不同人格面，但共享同一个灵魂内核。',
+    body: '参考荣格的人格面具概念。编程开发、陪伴对话、自媒体创作这些不同场景，本来就会调动人不同的一面、不同记忆和不同知识库；SoulShell 允许用户自己编辑这些面具，但它们共享同一个全局灵魂内核。',
     icon: Orbit,
   },
   {
     title: 'Ghost In The Shell',
     subtitle: '查看 / 编辑 / 注入',
-    body: '这次黑客松重点验证的一刀：把隐蔽的人格与记忆结构变成用户能主动编辑的终端。',
+    body: '把隐藏的人格与记忆结构变成可查看、可编辑、可注入的统一界面，是当前原型最直接可见的核心模块。',
     icon: FilePenLine,
   },
   {
@@ -112,18 +108,81 @@ const stackFlow = [
   },
 ];
 
-const currentState = [
-  '已把 Claude Code 的人格、规则、记忆文件结构做成可视化终端原型。',
-  '已验证本地文件读取、编辑、保存前备份、人格注入这条链路可以跑通。',
-  '已做出独立的伙伴终端与 Ghost Builder，让“灵魂”不只是文本，而是可被展示和测试的对象。',
-  '这次没有把完整前置层与灵魂孕育做完，但已经把最终产品结构讲清，并给未来模块留出了位置。',
+const prototypeModules = [
+  '文件发现：自动读取 Agent 的人格、记忆、规则文件，并统一归类展示。',
+  '编辑终端：在一个界面里查看与修改本地人格文件，不再手动翻目录。',
+  'Ghost Builder：把 Persona 组织成可注入结构，直接回写到日常 Agent。',
+  '伙伴终端：把灵魂以一个可见、可测的陪伴壳展示出来，而不只是文本片段。',
+  '安全底座：保存前备份已经接入，完整的历史记录、版本回退与撤销能力是明确保留的产品要求。',
 ];
 
-const demoScript = [
-  '先讲问题：用户在不同 Agent 中不断被重新认识，却没有人格主权。',
-  '再讲洞察：Claude Code 让我们看见，AI 的人格不是玄学，而是可以被拆解、管理、迁移的系统。',
-  '再展示 SoulShell：统一终端里查看 AI 怎么认识你，编辑后反向注入。',
-  '最后升维：未来可把 mem0、mem9、Second Me 这些更强的记忆能力，反向接入日常 Agent。',
+const pageSplit = [
+  {
+    name: '展示页面',
+    path: '/pitch',
+    body: '用来讲清问题、三层机制、产品定位，以及 SoulShell 在整个生态里的位置。',
+    cta: '当前所在页面',
+    muted: true,
+  },
+  {
+    name: 'Demo 网站',
+    path: '/',
+    body: '用来直接看文件发现、人格编辑、Ghost Builder 与伙伴终端这些真实界面。',
+    cta: '打开 Demo',
+    muted: false,
+  },
+];
+
+const safetyFlow = [
+  {
+    title: '先发现，再操作',
+    body: '先识别 Claude Code、OpenClaw 和用户本地资料的真实文件结构，再进入编辑与注入，不做黑箱覆盖。',
+  },
+  {
+    title: '每次修改先存档',
+    body: '任何改动都应该先生成备份和历史快照。重点不是“能改”，而是改坏了也能回去。',
+  },
+  {
+    title: '版本可追溯、可撤回',
+    body: '像 Git 一样管理人格文件和注入记录，用户随时都能看到改动、比较版本、撤销上一步。',
+  },
+  {
+    title: '不把本地环境搞乱',
+    body: 'SoulShell 的角色不是闯进用户文件系统乱改，而是作为一个专业管理器，把边界、作用域和回退路径讲清楚。',
+  },
+];
+
+const prototypePanels = [
+  {
+    title: '记忆源接入',
+    eyebrow: 'Mock Surface',
+    body: '按需连接已有资料，而不是强迫用户从零重新配置。可以只读本地 Agent，也可以逐步接入 mem0、mem9、Second Me、Twitter、小红书、Obsidian，以及像 Karpathy 个人 Obsidian 知识库这样的长期知识源。',
+    chips: ['mem0', 'mem9', 'Second Me', 'Twitter', '小红书', 'Karpathy Obsidian'],
+  },
+  {
+    title: '灵魂孕育',
+    eyebrow: 'Mock Surface',
+    body: '把分散的记忆、规则和资料整理成可迁移的灵魂 core。这里展示的是“灵魂如何被整理出来”，不是写一段 prompt 就结束。',
+    chips: ['提取有效记忆', '整理人格边界', '形成灵魂 core', '准备下发 Persona'],
+  },
+  {
+    title: 'Persona 面具',
+    eyebrow: 'Mock Surface',
+    body: '开发、陪伴、创作这些不同场景，会调用不同的人格面、不同记忆和不同知识库，但它们共享同一个全局灵魂内核。',
+    chips: ['开发人格', '陪伴人格', '创作人格', '可编辑'],
+  },
+  {
+    title: '安全回退',
+    eyebrow: 'Mock Surface',
+    body: '保存前备份、注入前快照、按平台记录变更历史、随时回退上一个版本。这些未完成模块在产品里会以管理界面的形式出现，而不是靠口播解释。',
+    chips: ['自动备份', '历史记录', '版本对比', '一键回退'],
+  },
+];
+
+const founderIntro = [
+  'CrabPot。连载过小说，做过独立游戏，也做过独立全栈产品。',
+  '长期关注人格化 AI、AI Native Game、AI 跑团，以及 AI for ADHD。',
+
 ];
 
 function SectionTitle({
@@ -145,6 +204,10 @@ function SectionTitle({
 }
 
 export default function PitchPage() {
+  const [stableMockTab, setStableMockTab] = useState<MockTab>('memory-connect');
+  const mockTabIds: MockTab[] = ['memory-connect', 'incubator', 'persona', 'safety'];
+  const [mockTab, setMockTab] = useState<'记忆源接入' | '灵魂孕育' | 'Persona 面具' | '安全回退'>('记忆源接入');
+
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(255,226,168,0.35),transparent_28%),linear-gradient(180deg,#fff8ef_0%,#fbf3e4_52%,#f5edde_100%)] text-stone-800">
       <div className="absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.85),transparent_60%)] pointer-events-none" />
@@ -175,6 +238,12 @@ export default function PitchPage() {
                 <div className="rounded-full border border-amber-200 bg-white/75 px-5 py-3 text-sm font-semibold text-stone-600">
                   AI 灵魂管理界面原型
                 </div>
+                <Link
+                  href="/"
+                  className="rounded-full border border-amber-200 bg-white/75 px-5 py-3 text-sm font-semibold text-amber-900 transition hover:bg-amber-50"
+                >
+                  进入 Demo
+                </Link>
               </div>
 
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
@@ -188,6 +257,16 @@ export default function PitchPage() {
                     <p className="mt-3 text-sm leading-7 text-stone-600">{text}</p>
                   </div>
                 ))}
+              </div>
+
+              <div className="mt-6 rounded-[28px] border border-amber-200 bg-[linear-gradient(135deg,rgba(255,249,240,0.96),rgba(255,238,194,0.82))] p-6 shadow-sm">
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">核心主张</p>
+                <p className="mt-3 font-headline text-3xl font-extrabold tracking-tight text-amber-950 sm:text-[2.35rem]">
+                  主动管理，而不是不断抽卡“喂养”
+                </p>
+                <p className="mt-4 max-w-3xl text-sm leading-7 text-stone-700 sm:text-base">
+                  用户不是每换一个 Agent 就重新养一只新东西，而是主动定义自己的灵魂内核，并把它带去不同工具与不同场景。
+                </p>
               </div>
             </div>
 
@@ -244,69 +323,16 @@ export default function PitchPage() {
               </div>
             ))}
           </div>
+
+          <div className="mt-8 rounded-[30px] border border-amber-200 bg-[linear-gradient(135deg,rgba(255,249,240,0.96),rgba(255,238,194,0.78))] p-6 shadow-sm">
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">Key Insight</p>
+            <p className="mt-3 font-headline text-2xl font-extrabold leading-10 tracking-tight text-amber-950 sm:text-3xl">
+              表面上，是 Agent 换来换去；实质上，是记忆层和执行层之间，缺少一个简单而有机的连接。
+            </p>
+          </div>
         </section>
 
         <section className="mt-24">
-          <SectionTitle
-            eyebrow="Why Now"
-            title="大咖都在证明这件事，但还没有人把控制权交给用户"
-            body="Claude Code、OpenClaw、Codex、mem0、mem9、Second Me 这些系统分别把三层结构的一部分做出来了，但还没有人把它们统一成一个用户可以主动理解、编辑、迁移的灵魂界面。"
-          />
-
-          <div className="mt-10 grid gap-4 lg:grid-cols-5">
-            {ecosystem.map((item) => (
-              <div key={item.name} className="rounded-[28px] border border-amber-100 bg-white/80 p-5 shadow-sm">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-700">{item.role}</p>
-                <h3 className="mt-3 font-headline text-2xl font-extrabold text-amber-950">{item.name}</h3>
-                <p className="mt-3 text-sm leading-7 text-stone-600">{item.body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-24 grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-[32px] border border-amber-100 bg-white/80 p-7 shadow-sm">
-            <div className="flex items-center gap-3">
-              <LockKeyhole className="text-amber-700" size={20} />
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">Core Thesis</p>
-            </div>
-            <div className="mt-6 space-y-4">
-              {thesis.map((line) => (
-                <p key={line} className="text-base leading-8 text-stone-700">
-                  {line}
-                </p>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-[32px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(251,243,228,0.92))] p-7 shadow-sm">
-            <div className="flex items-center gap-3">
-              <GitBranch className="text-amber-700" size={20} />
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">SoulShell Position</p>
-            </div>
-            <div className="mt-6 space-y-4">
-              {stackFlow.map((item, index) => {
-                const Icon = item.icon;
-                return (
-                  <div key={item.title} className="flex gap-4 rounded-[24px] bg-white/80 p-4">
-                    <div className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
-                      <Icon size={20} />
-                    </div>
-                    <div>
-                      <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-700">
-                        0{index + 1} · {item.title}
-                      </p>
-                      <h3 className="mt-1 font-headline text-xl font-extrabold text-amber-950">{item.subtitle}</h3>
-                      <p className="mt-2 text-sm leading-7 text-stone-600">{item.body}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-10">
           <div className="rounded-[36px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(245,237,222,0.92))] p-7 shadow-[0_18px_56px_rgba(120,53,15,0.08)] sm:p-8">
             <div className="max-w-3xl">
               <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-700">Three Layers</p>
@@ -365,10 +391,31 @@ export default function PitchPage() {
                         </div>
 
                         {isCenter && (
-                          <p className="mt-5 text-sm leading-7 text-stone-700">
-                            <span className="font-bold text-amber-950">SoulShell 的角色不是替代这些产品，</span>
-                            而是把上游的记忆原料，整理成下游执行 Agent 能稳定使用的人格终端。
-                          </p>
+                          <div className="mt-5 space-y-3">
+                            <p className="text-sm leading-7 text-stone-700">
+                              <span className="font-bold text-amber-950">SoulShell 的角色不是替代这些产品，</span>
+                              而是把上游的记忆原料，整理成下游执行 Agent 能稳定使用的人格终端。
+                            </p>
+                            <div className="rounded-[20px] border border-amber-200 bg-white px-4 py-3 text-sm leading-7 text-stone-700">
+                              <span className="font-bold text-amber-950">SoulShell 作为人格层，</span>
+                              向上解决的是<span className="font-bold text-amber-950">跨记忆系统</span>，
+                              向下解决的是<span className="font-bold text-amber-950">跨 Agent</span>。
+                            </div>
+                            <div className="rounded-[20px] border border-amber-200 bg-white px-4 py-3 text-sm leading-7 text-stone-700">
+                              <span className="font-bold text-amber-950">SoulShell 的标准是：</span>
+                              要在合适的时候记得合适的事情，用合适的方式。
+                            </div>
+                            <div className="rounded-[20px] border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm leading-7 text-stone-700">
+                              这个人格核心可以是数码宝贝伙伴，也可以是黑暗物质的精灵。
+                              <span className="font-bold text-amber-950">它强调的是一种精神需求：</span>
+                              用户希望有一个如影随形、一直陪着自己的伙伴，而不是每到一个工具里都重新开始。
+                            </div>
+                            <div className="rounded-[20px] border border-amber-200 bg-white/82 px-4 py-3 text-sm leading-7 text-stone-700">
+                              Persona 面具参考的是荣格的概念。现实中的人会在不同场景展现不同的一面，
+                              也会调用不同的记忆、边界和知识库。
+                              <span className="font-bold text-amber-950">SoulShell 允许用户自己编辑这些人格面具，而不是系统随机发一个设定。</span>
+                            </div>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -381,19 +428,286 @@ export default function PitchPage() {
 
         <section className="mt-24">
           <SectionTitle
-            eyebrow="This Hackathon"
-            title="这次我没有试图做完整未来，而是先验证最核心的环节"
-            body="完整 SoulShell 会包含前置层、灵魂孕育、Persona 面具与多平台回注。但这次黑客松，我先专注于 Claude Code：把它隐蔽的人格与记忆结构变成一个用户看得见、改得动、能注回去的终端。"
+            eyebrow="Research Basis"
+            title="这不是凭空想象出来的灵魂系统"
+            body="SoulShell 建立在对 Claude Code 与 OpenClaw 真实本地结构的拆解之上。我们不是先发明概念，再去找例子，而是先确认这些人格与记忆机制已经存在，只是它们分散、隐蔽，而且被锁在各自工具内部。"
           />
 
-          <div className="mt-10 grid gap-4 lg:grid-cols-[1fr_0.86fr]">
+          <div className="mt-10 grid gap-4 lg:grid-cols-3">
+            <div className="rounded-[28px] border border-amber-100 bg-white/80 p-6 shadow-sm">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-700">Claude Code</p>
+              <h3 className="mt-3 font-headline text-2xl font-extrabold text-amber-950">多层记忆已经存在</h3>
+              <p className="mt-4 text-sm leading-7 text-stone-700">
+                我们实际看到，Claude Code 并不是“没有人格系统”。它已经有规则层、项目级记忆层和索引层，例如
+                <span className="font-bold text-amber-950"> `CLAUDE.md`、项目 memory 目录、`MEMORY.md` 索引</span>，
+                甚至还有跨会话整理记忆的机制。
+              </p>
+              <p className="mt-4 text-sm leading-7 text-stone-600">
+                问题不在于没有记忆，而在于这些结构分散、隐蔽，而且主要服务 Claude Code 自己。
+              </p>
+            </div>
+
+            <div className="rounded-[28px] border border-amber-100 bg-white/80 p-6 shadow-sm">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-700">OpenClaw</p>
+              <h3 className="mt-3 font-headline text-2xl font-extrabold text-amber-950">本地人格文件已经存在</h3>
+              <p className="mt-4 text-sm leading-7 text-stone-700">
+                OpenClaw 也不是抽象概念。它已经把陪伴式 Agent 的人格、用户认知和本地关系做成了真实文件结构，例如
+                <span className="font-bold text-amber-950"> `SOUL`、`USER` </span>
+                这一类本地配置入口。
+              </p>
+              <p className="mt-4 text-sm leading-7 text-stone-600">
+                这证明了“人格文件”本身就是产品结构，只是现在仍然缺少统一、可管理、可迁移的界面。
+              </p>
+            </div>
+
+            <div className="rounded-[28px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(255,241,214,0.92))] p-6 shadow-sm">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-700">Our Judgment</p>
+              <h3 className="mt-3 font-headline text-2xl font-extrabold text-amber-950">人格层已经存在，但没有主权</h3>
+              <p className="mt-4 text-sm leading-7 text-stone-700">
+                这也是 SoulShell 成立的基础：我们不是重新发明一套灵魂系统，而是把已经存在、但分散在工具内部的人格与记忆结构，
+                变成用户可见、可编辑、可注入、可回退的终端。
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-24">
+          <SectionTitle
+            eyebrow="Why Now"
+            title="大家都在证明这件事，但还没有人把控制权交给用户"
+            body="Claude Code、OpenClaw、Codex、mem0、mem9、Second Me 这些系统分别把三层结构的一部分做出来了，但还没有人把它们统一成一个用户可以主动理解、编辑、迁移的灵魂界面。"
+          />
+
+          <div className="mt-10 grid gap-4 lg:grid-cols-5">
+            {ecosystem.map((item) => (
+              <div key={item.name} className="rounded-[28px] border border-amber-100 bg-white/80 p-5 shadow-sm">
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-700">{item.role}</p>
+                <h3 className="mt-3 font-headline text-2xl font-extrabold text-amber-950">{item.name}</h3>
+                <p className="mt-3 text-sm leading-7 text-stone-600">{item.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-24">
+          <div className="rounded-[36px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(245,237,222,0.94))] p-7 shadow-[0_18px_56px_rgba(120,53,15,0.08)] sm:p-8">
+            <div className="grid gap-8 xl:grid-cols-[0.92fr_1.08fr]">
+              <div>
+                <div className="flex items-center gap-3">
+                  <GitBranch className="text-amber-700" size={20} />
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">SoulShell Position</p>
+                </div>
+                <h3 className="mt-4 font-headline text-3xl font-extrabold tracking-tight text-amber-950 sm:text-4xl">
+                  左边讲结构，右边就是对应的产品界面
+                </h3>
+                <p className="mt-4 text-base leading-8 text-stone-700 sm:text-lg">
+                  SoulShell 不是站在三层体系外面空讲概念，而是直接插在这条链路里。左边讲它在系统里的位置，右边展示这些模块实际会长成什么样。
+                </p>
+
+                <div className="mt-6 space-y-4">
+                  {stackFlow.map((item, index) => {
+                    const Icon = item.icon;
+                    const target = mockTabIds[Math.min(index, mockTabIds.length - 1)];
+                    return (
+                      <button
+                        key={item.title}
+                        onClick={() => setStableMockTab(target)}
+                        className="flex w-full gap-4 rounded-[24px] bg-white/82 p-4 text-left shadow-sm transition hover:bg-white"
+                      >
+                        <div className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
+                          <Icon size={20} />
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-700">
+                            0{index + 1} · {item.title}
+                          </p>
+                          <h3 className="mt-1 font-headline text-xl font-extrabold text-amber-950">{item.subtitle}</h3>
+                          <p className="mt-2 text-sm leading-7 text-stone-600">{item.body}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="rounded-[32px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(255,255,255,0.94))] p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">Product Surface</p>
+                <h4 className="mt-3 font-headline text-2xl font-extrabold text-amber-950 sm:text-3xl">对应的产品界面</h4>
+
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {prototypePanels.map((panel, index) => (
+                    <button
+                      key={panel.title}
+                      onClick={() => setStableMockTab(mockTabIds[index])}
+                      className={`rounded-full px-4 py-2 text-sm font-bold transition ${
+                        stableMockTab === mockTabIds[index]
+                          ? 'bg-amber-900 text-white'
+                          : 'border border-amber-200 bg-white text-amber-900 hover:bg-amber-50'
+                      }`}
+                    >
+                      {panel.title}
+                    </button>
+                  ))}
+                </div>
+
+                {stableMockTab === 'memory-connect' && (
+                  <div className="mt-6 grid gap-4">
+                    <div className="rounded-[24px] border border-amber-100 bg-white/88 p-5 shadow-sm">
+                      <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">记忆源接入</p>
+                      <h5 className="mt-3 font-headline text-2xl font-extrabold text-amber-950">按需连接已有资料</h5>
+                      <div className="mt-5 flex flex-wrap gap-2">
+                        {['mem0', 'mem9', 'Second Me', 'Twitter', '小红书', 'Obsidian'].map((item, index) => (
+                          <div key={item} className="rounded-full border border-amber-200 bg-[#fbf3e4] px-3 py-2 text-xs font-bold text-amber-900">
+                            {index < 3 ? '已接入 · ' : '待接入 · '}
+                            {item}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="rounded-[24px] border border-amber-100 bg-white/88 p-5 shadow-sm">
+                      <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">接入策略</p>
+                      <div className="mt-4 space-y-3">
+                        {['只读取本地 Agent', '按资料源逐个授权', '标记可暴露与不可暴露信息'].map((item) => (
+                          <div key={item} className="rounded-2xl bg-[#fbf3e4] px-4 py-4 text-sm font-bold text-stone-700">{item}</div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {stableMockTab === 'incubator' && (
+                  <div className="mt-6 grid gap-4">
+                    <div className="rounded-[24px] border border-amber-100 bg-white/88 p-5 shadow-sm">
+                      <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">灵魂孕育</p>
+                      <div className="mt-4 space-y-3">
+                        {['提取有效记忆', '整理人格边界', '合并成全局灵魂 core', '准备下发 Persona'].map((item, index) => (
+                          <div key={item} className="flex gap-3 rounded-2xl bg-[#fbf3e4] p-4">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-900 text-xs font-black text-white">
+                              {index + 1}
+                            </div>
+                            <p className="text-sm leading-7 text-stone-700">{item}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="rounded-[24px] border border-amber-100 bg-[linear-gradient(135deg,rgba(255,249,240,0.98),rgba(255,233,187,0.82))] p-5 shadow-sm">
+                      <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">灵魂内核示意</p>
+                      <p className="mt-3 text-2xl font-extrabold text-amber-950">如影随形的伙伴</p>
+                      <p className="mt-3 text-sm leading-7 text-stone-700">
+                        可以是数码宝贝伙伴，也可以是黑暗物质的精灵。这里展示的是灵魂 core 如何被整理出来，而不是写一段 prompt 就结束。
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {stableMockTab === 'persona' && (
+                  <div className="mt-6 grid gap-4 lg:grid-cols-3">
+                    {[
+                      ['开发人格', '认真负责的 ISTJ', ['Claude Code', '项目规则', '代码库记忆']],
+                      ['陪伴人格', '理解你的 ENFJ', ['长期对话记忆', '个人表达', '情绪边界']],
+                      ['创作人格', '有边界感的内容搭档', ['社交媒体资料', '素材库', '写作偏好']],
+                    ].map(([name, tone, sources]) => (
+                      <div key={name as string} className="rounded-[24px] border border-amber-100 bg-white/88 p-5 shadow-sm">
+                        <p className="text-lg font-extrabold text-amber-950">{name as string}</p>
+                        <p className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-amber-700">{tone as string}</p>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {(sources as string[]).map((source) => (
+                            <div key={source} className="rounded-full border border-amber-200 bg-[#fbf3e4] px-3 py-1.5 text-[11px] font-bold text-stone-700">
+                              {source}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-4 rounded-2xl bg-[#fbf3e4] px-4 py-3 text-sm leading-7 text-stone-700">
+                          共享同一个灵魂 core，但在不同场景调用不同记忆和边界。
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {stableMockTab === 'safety' && (
+                  <div className="mt-6 grid gap-4">
+                    <div className="rounded-[24px] border border-amber-100 bg-white/88 p-5 shadow-sm">
+                      <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">安全可追溯</p>
+                      <div className="mt-4 space-y-3">
+                        {['保存前自动备份', '注入前生成快照', '按平台记录变更历史', '随时回退到上一个版本'].map((item) => (
+                          <div key={item} className="rounded-2xl bg-[#fbf3e4] px-4 py-4 text-sm font-bold text-stone-700">{item}</div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="rounded-[24px] border border-amber-100 bg-white/88 p-5 shadow-sm">
+                      <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">版本记录示意</p>
+                      <div className="mt-4 space-y-3">
+                        {[
+                          ['v12', '更新开发人格提示词', 'Claude Code · 5 分钟前'],
+                          ['v11', '撤回上次 OpenClaw 注入', 'OpenClaw · 11 分钟前'],
+                          ['v10', '补充个人知识库边界', 'Knowledge Base · 18 分钟前'],
+                        ].map(([ver, title, meta]) => (
+                          <div key={ver as string} className="rounded-2xl border border-amber-100 bg-[#fff8ef] px-4 py-4">
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="text-sm font-extrabold text-amber-950">{ver as string}</p>
+                              <button className="rounded-full border border-amber-200 bg-white px-3 py-1 text-[11px] font-bold text-amber-800">
+                                回退
+                              </button>
+                            </div>
+                            <p className="mt-2 text-sm font-bold text-stone-700">{title as string}</p>
+                            <p className="mt-1 text-xs text-stone-500">{meta as string}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="mt-10">
+          <div className="rounded-[36px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,252,246,0.96),rgba(248,239,223,0.96))] p-7 shadow-[0_18px_56px_rgba(120,53,15,0.08)] sm:p-8">
+            <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-700">Safety & Traceability</p>
+                <h3 className="mt-3 font-headline text-3xl font-extrabold tracking-tight text-amber-950 sm:text-4xl">
+                  安全可追溯
+                </h3>
+                <p className="mt-4 text-base leading-8 text-stone-700 sm:text-lg">
+                  SoulShell 不是一个随便闯进用户本地文件系统乱改的黑客工具。
+                  它应该像 Git 一样管理人格文件、注入记录和知识库接入，确保每次操作都清楚、可追踪、可回退。
+                </p>
+
+                <div className="mt-6 rounded-[28px] border border-amber-200 bg-white/82 p-5 shadow-sm">
+                  <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-700">核心承诺</p>
+                  <p className="mt-3 font-headline text-2xl font-extrabold tracking-tight text-amber-950 sm:text-3xl">
+                    不让用户因为 SoulShell 把 Claude Code、OpenClaw 或个人知识库搞得乱七八糟
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {safetyFlow.map((item, index) => (
+                  <div key={item.title} className="rounded-[28px] border border-amber-100 bg-white/88 p-5 shadow-sm">
+                    <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">0{index + 1}</p>
+                    <h4 className="mt-3 text-lg font-extrabold tracking-tight text-amber-950">{item.title}</h4>
+                    <p className="mt-3 text-sm leading-7 text-stone-700">{item.body}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-24">
+          <div className="grid gap-4 lg:grid-cols-[1fr_0.86fr]">
             <div className="rounded-[32px] border border-amber-100 bg-white/80 p-7 shadow-sm">
               <div className="flex items-center gap-3">
                 <ScanSearch className="text-amber-700" size={20} />
-                <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">Current Validation</p>
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">当前 Demo 可见内容</p>
               </div>
               <div className="mt-6 grid gap-3">
-                {currentState.map((item) => (
+                {prototypeModules.map((item) => (
                   <div key={item} className="rounded-[22px] bg-[#fbf3e4] px-4 py-4 text-sm leading-7 text-stone-700">
                     {item}
                   </div>
@@ -404,13 +718,64 @@ export default function PitchPage() {
             <div className="rounded-[32px] border border-amber-100 bg-[linear-gradient(180deg,rgba(245,237,222,0.9),rgba(255,255,255,0.92))] p-7 shadow-sm">
               <div className="flex items-center gap-3">
                 <ArrowRight className="text-amber-700" size={20} />
-                <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">Live Demo Script</p>
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">两个入口</p>
               </div>
               <div className="mt-6 space-y-4">
-                {demoScript.map((step, index) => (
-                  <div key={step} className="rounded-[22px] bg-white/80 p-4">
-                    <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-700">Step 0{index + 1}</p>
-                    <p className="mt-2 text-sm leading-7 text-stone-700">{step}</p>
+                {pageSplit.map((item) => (
+                  <div key={item.name} className="rounded-[22px] bg-white/80 p-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-700">{item.path}</p>
+                        <p className="mt-1 text-lg font-extrabold text-amber-950">{item.name}</p>
+                      </div>
+                      {item.muted ? (
+                        <div className="rounded-full bg-[#fbf3e4] px-3 py-1.5 text-xs font-bold text-amber-800">
+                          {item.cta}
+                        </div>
+                      ) : (
+                        <Link
+                          href={item.path}
+                          className="rounded-full bg-amber-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-amber-800"
+                        >
+                          {item.cta}
+                        </Link>
+                      )}
+                    </div>
+                    <p className="mt-3 text-sm leading-7 text-stone-700">{item.body}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-24">
+          <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="rounded-[32px] border border-amber-100 bg-white/80 p-7 shadow-sm">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">项目发起人</p>
+              <h3 className="mt-3 font-headline text-3xl font-extrabold text-amber-950">CrabPot</h3>
+              <div className="mt-5 space-y-4">
+                {founderIntro.map((line) => (
+                  <p key={line} className="text-base leading-8 text-stone-700">
+                    {line}
+                  </p>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[32px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(251,243,228,0.92))] p-7 shadow-sm">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">队伍信息</p>
+              <div className="mt-5 grid gap-3">
+                {[
+                  ['队伍名称', 'SoulShell 灵魂诞壳'],
+                  ['赛道', '个体'],
+                  ['队长', 'CrabPot'],
+                  ['选题', 'Agent 人格通用终端管理'],
+                  ['Slogan', '灵魂的诞壳'],
+                ].map(([label, value]) => (
+                  <div key={label} className="flex items-center justify-between rounded-[20px] bg-white/82 px-4 py-3">
+                    <span className="text-sm font-bold text-stone-500">{label}</span>
+                    <span className="text-sm font-bold text-amber-900">{value}</span>
                   </div>
                 ))}
               </div>
@@ -421,8 +786,8 @@ export default function PitchPage() {
         <section className="mt-24">
           <SectionTitle
             eyebrow="Closing"
-            title="我们不是在造另一个 AI，我们是在帮助用户主动管理 AI 的灵魂"
-            body="评委今天看到的不是一个完成态大产品，而是一个方向非常明确的系统入口：把分散在 Claude Code、OpenClaw、Codex 与未来记忆层之间的人格主权，真正交还给用户。"
+            title="SoulShell 要做的，是把人格主权从工具里拿回来"
+            body="它连接上游的记忆层与下游的执行 Agent，把原本散落在工具内部的人格、认知和边界，重新变成用户可以主动管理的界面。"
           />
 
           <div className="mt-10 rounded-[36px] border border-amber-100 bg-white/80 p-8 shadow-[0_20px_60px_rgba(120,53,15,0.08)]">
@@ -432,7 +797,7 @@ export default function PitchPage() {
                 <p className="mt-4 font-headline text-4xl font-extrabold leading-tight tracking-[-0.03em] text-amber-950 sm:text-5xl">
                   用户不该被动适应每一个 Agent。
                   <br />
-                  用户应该主动管理自己的灵魂。
+                  用户应该主动管理自己 Agent 的人格与记忆。
                 </p>
               </div>
 
@@ -454,3 +819,4 @@ export default function PitchPage() {
     </div>
   );
 }
+
