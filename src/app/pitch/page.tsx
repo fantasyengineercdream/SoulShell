@@ -126,7 +126,7 @@ const pageSplit = [
   },
   {
     name: 'Demo 网站',
-    path: '/',
+    path: '/demo',
     body: '用来直接看文件发现、人格编辑、Ghost Builder 与伙伴终端这些真实界面。',
     cta: '打开 Demo',
     muted: false,
@@ -239,7 +239,7 @@ export default function PitchPage() {
                   AI 灵魂管理界面原型
                 </div>
                 <Link
-                  href="/"
+                  href="/demo"
                   className="rounded-full border border-amber-200 bg-white/75 px-5 py-3 text-sm font-semibold text-amber-900 transition hover:bg-amber-50"
                 >
                   进入 Demo
@@ -805,7 +805,7 @@ export default function PitchPage() {
 
               <div className="flex flex-wrap gap-3">
                 <Link
-                  href="/"
+                  href="/demo"
                   className="rounded-full border border-amber-200 bg-[#fbf3e4] px-5 py-3 text-sm font-bold text-amber-800 transition hover:bg-amber-50"
                 >
                   返回产品原型
