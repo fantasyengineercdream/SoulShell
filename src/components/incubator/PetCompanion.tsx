@@ -11,11 +11,13 @@ interface Message {
 
 interface Props {
   files?: DiscoveredFile[];
+  onHatched?: () => void;
+  fullscreenMode?: boolean;
 }
 
 type PetState = 'egg' | 'hatching' | 'selecting' | 'alive';
 
-export function PetCompanion({ files = [] }: Props) {
+export function PetCompanion({ files = [], onHatched, fullscreenMode }: Props) {
   const [petState, setPetState] = useState<PetState>('egg');
   const [creature, setCreature] = useState<CreatureType>('dragon');
   const [petName, setPetName] = useState('');
@@ -47,7 +49,8 @@ export function PetCompanion({ files = [] }: Props) {
   const confirmCreature = () => {
     setPetState('alive');
     const name = petName || CREATURES[creature].label;
-    setLog([{ role: 'pet', text: `* 破壳 * 你好！我是 ${name}，你的灵魂伙伴。用上方的 Ghost in the Shell 给我注入灵魂，或者直接和我聊天吧。` }]);
+    setLog([{ role: 'pet', text: `* 破壳 * 你好！我是 ${name}，你的灵魂伙伴。用上方的灵魂注入给我注入灵魂，或者直接和我聊天吧。` }]);
+    onHatched?.();
   };
 
   const send = () => {

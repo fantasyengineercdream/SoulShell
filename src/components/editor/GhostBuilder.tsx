@@ -124,6 +124,17 @@ export function GhostBuilder({ activeFile, files, onInjected }: Props) {
             </button>
           ))}
         </div>
+
+        {/* 前置层占位 */}
+        <div className="mt-4 p-4 border border-dashed border-amber-200 rounded-xl bg-amber-50/30">
+          <p className="text-[10px] text-amber-600 font-bold uppercase tracking-wider mb-2">灵魂原料 · 记忆层接入（即将推出）</p>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {['mem0', 'Second Me', 'memsearch', 'Twitter', '小红书', 'Obsidian'].map(name => (
+              <span key={name} className="text-[10px] px-2 py-1 bg-white/60 rounded-full text-stone-400 border border-amber-100">{name}</span>
+            ))}
+          </div>
+          <p className="text-[9px] text-stone-300">导入更丰富的记忆源，让构建的灵魂更贴合真实的你</p>
+        </div>
       </div>
     );
   }
