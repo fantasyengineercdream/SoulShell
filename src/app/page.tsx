@@ -13,72 +13,103 @@ export default function Home() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [rightTab, setRightTab] = useState<'ghost' | 'pet'>('pet');
 
-  // 检查是否已孵化
   useEffect(() => {
     const saved = localStorage.getItem('soulshell-hatched');
-    if (saved === 'true') {
-      setHatched(true);
-      setRightTab('ghost');
-    }
+    if (saved === 'true') { setHatched(true); setRightTab('ghost'); }
   }, []);
 
-  // 孵化完成后加载文件
+  // 始终加载文件（前置页面也要展示检测结果）
   useEffect(() => {
-    if (hatched) {
-      fetch('/api/files').then(r => r.json()).then(d => setFiles(d.files || []));
-    }
-  }, [hatched]);
+    fetch('/api/files').then(r => r.json()).then(d => setFiles(d.files || []));
+  }, []);
 
   const handleHatched = () => {
     localStorage.setItem('soulshell-hatched', 'true');
     setHatched(true);
   };
 
-  // ─── 未孵化：全屏孵化流程 ─────────────────────────
+  const ccFiles = files.filter(f => f.platform === 'Claude Code' && f.exists);
+  const ocFiles = files.filter(f => f.platform === 'OpenClaw' && f.exists);
+
+  // ─── 未孵化：前置页面（带检测摘要）─────────────────
   if (!hatched) {
     return (
-      <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#fff8ef] relative overflow-hidden">
+      <div className="h-screen w-screen overflow-y-auto bg-[#fff8ef] relative">
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-[600px] h-[600px] rounded-full border border-amber-200/30 animate-[spin_25s_linear_infinite]" />
-          <div className="absolute w-[500px] h-[500px] rounded-full border border-amber-100/20 animate-[spin_40s_linear_infinite_reverse]" />
+          <div className="w-[600px] h-[600px] rounded-full border border-amber-200/20 animate-[spin_25s_linear_infinite]" />
           <div className="absolute w-[700px] h-[700px] rounded-full bg-amber-100/10 blur-3xl" />
         </div>
 
-        <div className="relative z-10 flex flex-col items-center max-w-lg">
-          {/* Soul Sphere */}
-          <div className="relative mb-10">
-            <div className="w-48 h-48 rounded-full bg-gradient-to-br from-amber-300 via-yellow-200 to-amber-100 soul-glow animate-soul-pulse flex items-center justify-center">
+        <div className="relative z-10 flex flex-col items-center max-w-2xl mx-auto px-6 py-12">
+          {/* Header */}
+          <div className="relative mb-8">
+            <div className="w-36 h-36 rounded-full bg-gradient-to-br from-amber-300 via-yellow-200 to-amber-100 soul-glow animate-soul-pulse flex items-center justify-center">
               <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.8),transparent)]" />
-              <span className="text-6xl relative z-10">🥚</span>
+              <span className="text-5xl relative z-10">🥚</span>
             </div>
-            <div className="absolute top-1/4 -right-6 w-3 h-3 bg-amber-400 rounded-full shadow-[0_0_16px_#ffd700] animate-pulse" />
-            <div className="absolute bottom-1/3 -left-8 w-2 h-2 bg-white rounded-full shadow-[0_0_12px_#fff] animate-pulse" />
           </div>
 
-          <h1 className="text-5xl font-extrabold text-amber-900 font-headline tracking-tight mb-3">SoulShell</h1>
-          <p className="text-stone-500 text-base mb-1 font-medium">灵魂诞壳 · Agent 人格通用终端</p>
-          <p className="text-stone-400 text-sm mb-8 text-center leading-relaxed">
-            发现、编辑、注入——让你的 AI 工具拥有灵魂。<br />
-            一个灵魂，如影随形。
-          </p>
+          <h1 className="text-4xl font-extrabold text-amber-900 font-headline tracking-tight mb-2">SoulShell</h1>
+          <p className="text-stone-500 text-sm font-medium mb-1">灵魂诞壳 · Agent 人格通用终端</p>
+          <p className="text-stone-400 text-xs mb-8 text-center">发现、编辑、注入——让你的 AI 工具拥有灵魂</p>
 
-          {/* 这次 Demo 的孵化直接进入选择宠物 */}
-          <div className="w-full bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg mb-6">
+          {/* ── 检测摘要 ── */}
+          <div className="w-full grid grid-cols-2 gap-3 mb-6">
+            <div className={`p-4 rounded-xl border ${ccFiles.length > 0 ? 'bg-orange-50 border-orange-200' : 'bg-stone-50 border-stone-200'}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <span>🔶</span>
+                <span className="font-bold text-sm text-stone-700">Claude Code</span>
+              </div>
+              {ccFiles.length > 0 ? (
+                <div className="text-xs text-stone-500 space-y-0.5">
+                  <p className="text-green-600 font-semibold">✓ 已检测到 {ccFiles.length} 个文件</p>
+                  {ccFiles.map(f => <p key={f.id} className="truncate">· {f.displayName}</p>)}
+                </div>
+              ) : (
+                <p className="text-xs text-stone-400">扫描中...</p>
+              )}
+            </div>
+
+            <div className={`p-4 rounded-xl border ${ocFiles.length > 0 ? 'bg-green-50 border-green-200' : 'bg-stone-50 border-stone-200'}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <span>🦅</span>
+                <span className="font-bold text-sm text-stone-700">OpenClaw</span>
+              </div>
+              {ocFiles.length > 0 ? (
+                <div className="text-xs text-stone-500 space-y-0.5">
+                  <p className="text-green-600 font-semibold">✓ 已检测到 {ocFiles.length} 个文件</p>
+                  {ocFiles.slice(0, 4).map(f => <p key={f.id} className="truncate">· {f.displayName}</p>)}
+                  {ocFiles.length > 4 && <p className="text-stone-300">+{ocFiles.length - 4} 更多</p>}
+                </div>
+              ) : (
+                <p className="text-xs text-stone-400">扫描中...</p>
+              )}
+            </div>
+          </div>
+
+          {/* ── 孵化区 ── */}
+          <div className="w-full bg-white/60 backdrop-blur-sm rounded-2xl p-5 shadow-lg mb-5">
             <PetCompanion files={[]} onHatched={handleHatched} fullscreenMode={true} />
           </div>
 
-          {/* 前置层占位 */}
-          <div className="w-full bg-white/40 backdrop-blur-sm rounded-2xl p-5 border border-amber-100">
-            <p className="text-[10px] text-amber-700 font-bold uppercase tracking-wider mb-3">记忆层接入（即将推出）</p>
-            <div className="flex gap-3 justify-center">
-              {['mem0', 'Second Me', 'memsearch'].map(name => (
-                <div key={name} className="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full border border-amber-100 text-[11px] text-stone-400">
-                  <div className="w-2 h-2 rounded-full bg-stone-200" />
+          {/* ── 前置层占位 ── */}
+          <div className="w-full bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-amber-100 mb-5">
+            <p className="text-[10px] text-amber-700 font-bold uppercase tracking-wider mb-2">记忆层接入（即将推出）</p>
+            <div className="flex gap-2 justify-center flex-wrap">
+              {['mem0', 'Second Me', 'memsearch', 'Twitter', '小红书', 'Obsidian'].map(name => (
+                <div key={name} className="flex items-center gap-1 px-2.5 py-1 bg-white rounded-full border border-amber-100 text-[10px] text-stone-400">
+                  <div className="w-1.5 h-1.5 rounded-full bg-stone-200" />
                   {name}
                 </div>
               ))}
             </div>
-            <p className="text-[9px] text-stone-300 text-center mt-2">导入你的社交媒体、知识库，让灵魂更完整</p>
+            <p className="text-[9px] text-stone-300 text-center mt-2">导入社交媒体、知识库，让灵魂更完整</p>
+          </div>
+
+          {/* ── 灵魂孕育占位 ── */}
+          <div className="w-full bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-dashed border-amber-200">
+            <p className="text-[10px] text-amber-700 font-bold uppercase tracking-wider mb-1">灵魂孕育引擎（即将推出）</p>
+            <p className="text-[9px] text-stone-300">将记忆层各个记忆源按照用户需求整合编排，构建独一无二的灵魂</p>
           </div>
         </div>
       </div>
@@ -107,19 +138,14 @@ export default function Home() {
       <aside className="w-[420px] flex flex-col border-l border-amber-100">
         <div className="flex border-b border-amber-100 bg-[#fbf3e4]">
           <button onClick={() => setRightTab('ghost')}
-            className={`flex-1 py-3 text-sm font-bold transition ${
-              rightTab === 'ghost' ? 'text-amber-800 border-b-2 border-amber-500' : 'text-stone-400 hover:text-amber-600'
-            }`}>
+            className={`flex-1 py-3 text-sm font-bold transition ${rightTab === 'ghost' ? 'text-amber-800 border-b-2 border-amber-500' : 'text-stone-400 hover:text-amber-600'}`}>
             👻 灵魂注入
           </button>
           <button onClick={() => setRightTab('pet')}
-            className={`flex-1 py-3 text-sm font-bold transition ${
-              rightTab === 'pet' ? 'text-amber-800 border-b-2 border-amber-500' : 'text-stone-400 hover:text-amber-600'
-            }`}>
+            className={`flex-1 py-3 text-sm font-bold transition ${rightTab === 'pet' ? 'text-amber-800 border-b-2 border-amber-500' : 'text-stone-400 hover:text-amber-600'}`}>
             🐣 伙伴终端
           </button>
         </div>
-
         <div className="flex-1 overflow-hidden">
           {rightTab === 'ghost' ? (
             <GhostBuilder activeFile={activeFile} files={files} onInjected={() => setRefreshKey(k => k + 1)} />

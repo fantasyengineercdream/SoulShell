@@ -31,9 +31,9 @@ function encodeCwdToProjectSlug(cwd: string): string {
   let p = cwd.replace(/\\/g, '/');
   // 去掉尾部斜杠
   p = p.replace(/\/+$/, '');
-  // 盘符: "M:" → "M"
-  p = p.replace(/^([A-Za-z]):/, (_, d) => d.toUpperCase());
-  // 所有 / 替换为 -
+  // 盘符: "M:/code" → "M--code"（Claude Code 用双横杠分隔盘符）
+  p = p.replace(/^([A-Za-z]):\//, (_, d) => d.toUpperCase() + '--');
+  // 剩余 / 替换为 -
   p = p.replace(/\//g, '-');
   return p;
 }
