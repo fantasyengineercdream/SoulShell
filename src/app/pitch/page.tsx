@@ -212,20 +212,20 @@ export default function PitchPage() {
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(255,226,168,0.35),transparent_28%),linear-gradient(180deg,#fff8ef_0%,#fbf3e4_52%,#f5edde_100%)] text-stone-800">
       <div className="absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.85),transparent_60%)] pointer-events-none" />
 
-      <main className="relative mx-auto flex w-full max-w-7xl flex-col px-6 pb-20 pt-8 sm:px-10 lg:px-12">
-        <section className="glass-panel overflow-hidden rounded-[36px] border border-white/70 shadow-[0_24px_80px_rgba(120,53,15,0.08)]">
-          <div className="grid gap-10 px-7 py-8 sm:px-10 sm:py-10 lg:grid-cols-[1.25fr_0.9fr] lg:px-12 lg:py-12">
+      <main className="relative mx-auto flex w-full max-w-7xl flex-col px-4 pb-16 pt-6 sm:px-10 sm:pb-20 sm:pt-8 lg:px-12">
+        <section className="glass-panel overflow-hidden rounded-[28px] border border-white/70 shadow-[0_24px_80px_rgba(120,53,15,0.08)] sm:rounded-[36px]">
+          <div className="grid gap-8 px-5 py-6 sm:px-10 sm:py-10 lg:grid-cols-[1.25fr_0.9fr] lg:px-12 lg:py-12">
             <div>
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white/70 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-amber-800">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white/70 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-amber-800 sm:text-xs">
                 <Sparkles size={14} />
                 SoulShell
               </div>
 
-              <h1 className="max-w-4xl font-headline text-5xl font-black tracking-[-0.04em] text-amber-950 sm:text-6xl lg:text-7xl">
+              <h1 className="max-w-4xl font-headline text-4xl font-black leading-none tracking-[-0.04em] text-amber-950 sm:text-6xl lg:text-7xl">
                 你的 AI 灵魂管理终端
               </h1>
 
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-stone-600 sm:text-xl">
+              <p className="mt-5 max-w-3xl text-base leading-7 text-stone-600 sm:text-xl sm:leading-8">
                 发现、编辑、注入。让 <span className="font-bold text-amber-900">Claude Code</span>、
                 <span className="font-bold text-amber-900"> OpenClaw</span>、
                 <span className="font-bold text-amber-900"> Codex</span> 真正认识你。
@@ -246,22 +246,22 @@ export default function PitchPage() {
                 </Link>
               </div>
 
-              <div className="mt-10 grid gap-4 sm:grid-cols-3">
+              <div className="mt-8 grid gap-3 sm:mt-10 sm:gap-4 sm:grid-cols-3">
                 {[
                   ['发现', '看见 AI 怎么认识你'],
                   ['编辑', '主动改写人格与认知'],
                   ['注入', '把灵魂带回日常 Agent'],
                 ].map(([head, text]) => (
-                  <div key={head} className="rounded-3xl border border-amber-100 bg-white/80 p-5 shadow-sm">
+                  <div key={head} className="rounded-3xl border border-amber-100 bg-white/80 p-4 shadow-sm sm:p-5">
                     <p className="text-sm font-black uppercase tracking-[0.18em] text-amber-700">{head}</p>
                     <p className="mt-3 text-sm leading-7 text-stone-600">{text}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-6 rounded-[28px] border border-amber-200 bg-[linear-gradient(135deg,rgba(255,249,240,0.96),rgba(255,238,194,0.82))] p-6 shadow-sm">
+              <div className="mt-6 rounded-[24px] border border-amber-200 bg-[linear-gradient(135deg,rgba(255,249,240,0.96),rgba(255,238,194,0.82))] p-5 shadow-sm sm:rounded-[28px] sm:p-6">
                 <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">核心主张</p>
-                <p className="mt-3 font-headline text-3xl font-extrabold tracking-tight text-amber-950 sm:text-[2.35rem]">
+                <p className="mt-3 font-headline text-2xl font-extrabold tracking-tight text-amber-950 sm:text-[2.35rem]">
                   主动管理，而不是不断抽卡“喂养”
                 </p>
                 <p className="mt-4 max-w-3xl text-sm leading-7 text-stone-700 sm:text-base">
@@ -271,13 +271,13 @@ export default function PitchPage() {
             </div>
 
             <div className="flex flex-col gap-4">
-              <div className="rounded-[32px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(245,237,222,0.98))] p-6 shadow-[0_14px_40px_rgba(120,53,15,0.10)]">
-                <div className="mb-5 flex items-center justify-between">
+              <div className="rounded-[28px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(245,237,222,0.98))] p-5 shadow-[0_14px_40px_rgba(120,53,15,0.10)] sm:rounded-[32px] sm:p-6">
+                <div className="mb-5 flex items-center justify-between gap-4">
                   <div>
                     <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">Current Demo</p>
                     <h3 className="mt-2 font-headline text-2xl font-extrabold text-amber-950">SoulShell Terminal</h3>
                   </div>
-                  <div className="soul-glow flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-amber-300 via-yellow-200 to-amber-100 text-3xl">
+                  <div className="soul-glow flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-amber-300 via-yellow-200 to-amber-100 text-2xl sm:h-16 sm:w-16 sm:text-3xl">
                     🥚
                   </div>
                 </div>
@@ -289,7 +289,7 @@ export default function PitchPage() {
                     'Ghost Builder 人格注入',
                     '伙伴终端作为测试壳',
                   ].map((item) => (
-                    <div key={item} className="flex items-center justify-between rounded-2xl bg-white/80 px-4 py-3">
+                    <div key={item} className="flex flex-col gap-2 rounded-2xl bg-white/80 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                       <span className="text-sm font-semibold text-stone-700">{item}</span>
                       <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-700">已验证</span>
                     </div>
@@ -297,7 +297,7 @@ export default function PitchPage() {
                 </div>
               </div>
 
-              <div className="rounded-[32px] border border-amber-100 bg-white/75 p-6 shadow-sm">
+              <div className="rounded-[28px] border border-amber-100 bg-white/75 p-5 shadow-sm sm:rounded-[32px] sm:p-6">
                 <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">Thesis</p>
                 <p className="mt-4 text-base leading-8 text-stone-700">
                   行业里不缺 Agent，不缺记忆，不缺人格文件。
@@ -308,38 +308,38 @@ export default function PitchPage() {
           </div>
         </section>
 
-        <section className="mt-20">
+        <section className="mt-14 sm:mt-20">
           <SectionTitle
             eyebrow="Problem"
             title="用户每天都在被不同 AI 重新认识"
             body="今天最真实的问题，不是没有记忆，也不是没有 Agent，而是用户对 AI 如何认识自己没有主权。人格、规则、记忆已经存在，但它们散落在系统内部，既不可见，也不可控。"
           />
 
-          <div className="mt-10 grid gap-4 md:grid-cols-2">
+          <div className="mt-8 grid gap-4 md:mt-10 md:grid-cols-2">
             {painPoints.map((point, index) => (
-              <div key={point} className="rounded-[28px] border border-amber-100 bg-white/80 p-6 shadow-sm">
+              <div key={point} className="rounded-[24px] border border-amber-100 bg-white/80 p-5 shadow-sm sm:rounded-[28px] sm:p-6">
                 <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">0{index + 1}</p>
-                <p className="mt-3 text-base leading-8 text-stone-700">{point}</p>
+                <p className="mt-3 text-base leading-7 text-stone-700 sm:leading-8">{point}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-8 rounded-[30px] border border-amber-200 bg-[linear-gradient(135deg,rgba(255,249,240,0.96),rgba(255,238,194,0.78))] p-6 shadow-sm">
+          <div className="mt-8 rounded-[24px] border border-amber-200 bg-[linear-gradient(135deg,rgba(255,249,240,0.96),rgba(255,238,194,0.78))] p-5 shadow-sm sm:rounded-[30px] sm:p-6">
             <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">Key Insight</p>
-            <p className="mt-3 font-headline text-2xl font-extrabold leading-10 tracking-tight text-amber-950 sm:text-3xl">
+            <p className="mt-3 font-headline text-xl font-extrabold leading-8 tracking-tight text-amber-950 sm:text-3xl sm:leading-10">
               表面上，是 Agent 换来换去；实质上，是记忆层和执行层之间，缺少一个简单而有机的连接。
             </p>
           </div>
         </section>
 
-        <section className="mt-24">
-          <div className="rounded-[36px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(245,237,222,0.92))] p-7 shadow-[0_18px_56px_rgba(120,53,15,0.08)] sm:p-8">
+        <section className="mt-16 sm:mt-24">
+          <div className="rounded-[28px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(245,237,222,0.92))] p-5 shadow-[0_18px_56px_rgba(120,53,15,0.08)] sm:rounded-[36px] sm:p-8">
             <div className="max-w-3xl">
               <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-700">Three Layers</p>
-              <h3 className="mt-3 font-headline text-3xl font-extrabold tracking-tight text-amber-950 sm:text-4xl">
+              <h3 className="mt-3 font-headline text-2xl font-extrabold tracking-tight text-amber-950 sm:text-4xl">
                 这件事要分三层看，SoulShell 卡在中间
               </h3>
-              <p className="mt-4 text-base leading-8 text-stone-600 sm:text-lg">
+              <p className="mt-4 text-sm leading-7 text-stone-600 sm:text-lg sm:leading-8">
                 不是所有产品都在同一层竞争。记忆层沉淀原料，执行层承载日常 Agent，而 SoulShell 介入中间的人格层，
                 负责把“记忆”整理成“可被表达、管理、注入的灵魂”。
               </p>
@@ -355,7 +355,7 @@ export default function PitchPage() {
                     )}
 
                     <div
-                      className={`grid gap-6 rounded-[32px] border p-6 shadow-sm transition sm:p-7 lg:grid-cols-[0.9fr_1.1fr] ${
+                      className={`grid gap-5 rounded-[24px] border p-5 shadow-sm transition sm:rounded-[32px] sm:p-7 lg:grid-cols-[0.9fr_1.1fr] ${
                         isCenter
                           ? 'border-amber-300 bg-[linear-gradient(135deg,rgba(255,243,214,0.98),rgba(255,232,163,0.70))] shadow-[0_18px_60px_rgba(255,215,0,0.16)]'
                           : 'border-amber-100 bg-white/82'
@@ -365,13 +365,13 @@ export default function PitchPage() {
                         <p className={`text-xs font-black uppercase tracking-[0.24em] ${isCenter ? 'text-amber-800' : 'text-amber-700'}`}>
                           {layer.tag}
                         </p>
-                        <h4 className="mt-3 font-headline text-3xl font-extrabold text-amber-950 sm:text-[2.15rem]">
+                        <h4 className="mt-3 font-headline text-2xl font-extrabold text-amber-950 sm:text-[2.15rem]">
                           {layer.name}
                         </h4>
-                        <p className="mt-4 text-base leading-8 text-stone-700">{layer.body}</p>
+                        <p className="mt-4 text-sm leading-7 text-stone-700 sm:text-base sm:leading-8">{layer.body}</p>
                       </div>
 
-                      <div className={`rounded-[28px] p-5 ${isCenter ? 'bg-white/72' : 'bg-[#fbf3e4]'}`}>
+                      <div className={`rounded-[22px] p-4 sm:rounded-[28px] sm:p-5 ${isCenter ? 'bg-white/72' : 'bg-[#fbf3e4]'}`}>
                         <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-700">
                           代表产品 / 当前位置
                         </p>
@@ -426,7 +426,7 @@ export default function PitchPage() {
           </div>
         </section>
 
-        <section className="mt-24">
+        <section className="mt-16 sm:mt-24">
           <SectionTitle
             eyebrow="Research Basis"
             title="这不是凭空想象出来的灵魂系统"
@@ -471,7 +471,7 @@ export default function PitchPage() {
           </div>
         </section>
 
-        <section className="mt-24">
+        <section className="mt-16 sm:mt-24">
           <SectionTitle
             eyebrow="Why Now"
             title="大家都在证明这件事，但还没有人把控制权交给用户"
@@ -489,18 +489,18 @@ export default function PitchPage() {
           </div>
         </section>
 
-        <section className="mt-24">
-          <div className="rounded-[36px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(245,237,222,0.94))] p-7 shadow-[0_18px_56px_rgba(120,53,15,0.08)] sm:p-8">
+        <section className="mt-16 sm:mt-24">
+          <div className="rounded-[28px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(245,237,222,0.94))] p-5 shadow-[0_18px_56px_rgba(120,53,15,0.08)] sm:rounded-[36px] sm:p-8">
             <div className="grid gap-8 xl:grid-cols-[0.92fr_1.08fr]">
               <div>
                 <div className="flex items-center gap-3">
                   <GitBranch className="text-amber-700" size={20} />
                   <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">SoulShell Position</p>
                 </div>
-                <h3 className="mt-4 font-headline text-3xl font-extrabold tracking-tight text-amber-950 sm:text-4xl">
+                <h3 className="mt-4 font-headline text-2xl font-extrabold tracking-tight text-amber-950 sm:text-4xl">
                   左边讲结构，右边就是对应的产品界面
                 </h3>
-                <p className="mt-4 text-base leading-8 text-stone-700 sm:text-lg">
+                <p className="mt-4 text-sm leading-7 text-stone-700 sm:text-lg sm:leading-8">
                   SoulShell 不是站在三层体系外面空讲概念，而是直接插在这条链路里。左边讲它在系统里的位置，右边展示这些模块实际会长成什么样。
                 </p>
 
@@ -512,7 +512,7 @@ export default function PitchPage() {
                       <button
                         key={item.title}
                         onClick={() => setStableMockTab(target)}
-                        className="flex w-full gap-4 rounded-[24px] bg-white/82 p-4 text-left shadow-sm transition hover:bg-white"
+                        className="flex w-full gap-3 rounded-[20px] bg-white/82 p-4 text-left shadow-sm transition hover:bg-white sm:gap-4 sm:rounded-[24px]"
                       >
                         <div className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
                           <Icon size={20} />
@@ -521,8 +521,8 @@ export default function PitchPage() {
                           <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-700">
                             0{index + 1} · {item.title}
                           </p>
-                          <h3 className="mt-1 font-headline text-xl font-extrabold text-amber-950">{item.subtitle}</h3>
-                          <p className="mt-2 text-sm leading-7 text-stone-600">{item.body}</p>
+                          <h3 className="mt-1 font-headline text-lg font-extrabold text-amber-950 sm:text-xl">{item.subtitle}</h3>
+                          <p className="mt-2 text-xs leading-6 text-stone-600 sm:text-sm sm:leading-7">{item.body}</p>
                         </div>
                       </button>
                     );
@@ -530,24 +530,26 @@ export default function PitchPage() {
                 </div>
               </div>
 
-              <div className="rounded-[32px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(255,255,255,0.94))] p-5 shadow-sm sm:p-6">
+              <div className="rounded-[24px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(255,255,255,0.94))] p-4 shadow-sm sm:rounded-[32px] sm:p-6">
                 <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">Product Surface</p>
                 <h4 className="mt-3 font-headline text-2xl font-extrabold text-amber-950 sm:text-3xl">对应的产品界面</h4>
 
-                <div className="mt-6 flex flex-wrap gap-3">
-                  {prototypePanels.map((panel, index) => (
-                    <button
-                      key={panel.title}
-                      onClick={() => setStableMockTab(mockTabIds[index])}
-                      className={`rounded-full px-4 py-2 text-sm font-bold transition ${
-                        stableMockTab === mockTabIds[index]
-                          ? 'bg-amber-900 text-white'
-                          : 'border border-amber-200 bg-white text-amber-900 hover:bg-amber-50'
-                      }`}
-                    >
-                      {panel.title}
-                    </button>
-                  ))}
+                <div className="mt-6 -mx-1 overflow-x-auto pb-2 sm:mx-0 sm:overflow-visible sm:pb-0">
+                  <div className="flex w-max gap-3 px-1 sm:w-auto sm:flex-wrap sm:px-0">
+                    {prototypePanels.map((panel, index) => (
+                      <button
+                        key={panel.title}
+                        onClick={() => setStableMockTab(mockTabIds[index])}
+                        className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold transition ${
+                          stableMockTab === mockTabIds[index]
+                            ? 'bg-amber-900 text-white'
+                            : 'border border-amber-200 bg-white text-amber-900 hover:bg-amber-50'
+                        }`}
+                      >
+                        {panel.title}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {stableMockTab === 'memory-connect' && (
@@ -665,8 +667,8 @@ export default function PitchPage() {
             </div>
           </div>
         </section>
-        <section className="mt-10">
-          <div className="rounded-[36px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,252,246,0.96),rgba(248,239,223,0.96))] p-7 shadow-[0_18px_56px_rgba(120,53,15,0.08)] sm:p-8">
+        <section className="mt-10 sm:mt-12">
+          <div className="rounded-[28px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,252,246,0.96),rgba(248,239,223,0.96))] p-5 shadow-[0_18px_56px_rgba(120,53,15,0.08)] sm:rounded-[36px] sm:p-8">
             <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-700">Safety & Traceability</p>
@@ -699,9 +701,9 @@ export default function PitchPage() {
           </div>
         </section>
 
-        <section className="mt-24">
+        <section className="mt-16 sm:mt-24">
           <div className="grid gap-4 lg:grid-cols-[1fr_0.86fr]">
-            <div className="rounded-[32px] border border-amber-100 bg-white/80 p-7 shadow-sm">
+            <div className="rounded-[24px] border border-amber-100 bg-white/80 p-5 shadow-sm sm:rounded-[32px] sm:p-7">
               <div className="flex items-center gap-3">
                 <ScanSearch className="text-amber-700" size={20} />
                 <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">当前 Demo 可见内容</p>
@@ -715,7 +717,7 @@ export default function PitchPage() {
               </div>
             </div>
 
-            <div className="rounded-[32px] border border-amber-100 bg-[linear-gradient(180deg,rgba(245,237,222,0.9),rgba(255,255,255,0.92))] p-7 shadow-sm">
+            <div className="rounded-[24px] border border-amber-100 bg-[linear-gradient(180deg,rgba(245,237,222,0.9),rgba(255,255,255,0.92))] p-5 shadow-sm sm:rounded-[32px] sm:p-7">
               <div className="flex items-center gap-3">
                 <ArrowRight className="text-amber-700" size={20} />
                 <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">两个入口</p>
@@ -723,7 +725,7 @@ export default function PitchPage() {
               <div className="mt-6 space-y-4">
                 {pageSplit.map((item) => (
                   <div key={item.name} className="rounded-[22px] bg-white/80 p-4">
-                    <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-700">{item.path}</p>
                         <p className="mt-1 text-lg font-extrabold text-amber-950">{item.name}</p>
@@ -749,9 +751,9 @@ export default function PitchPage() {
           </div>
         </section>
 
-        <section className="mt-24">
+        <section className="mt-16 sm:mt-24">
           <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-            <div className="rounded-[32px] border border-amber-100 bg-white/80 p-7 shadow-sm">
+            <div className="rounded-[24px] border border-amber-100 bg-white/80 p-5 shadow-sm sm:rounded-[32px] sm:p-7">
               <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">项目发起人</p>
               <h3 className="mt-3 font-headline text-3xl font-extrabold text-amber-950">CrabPot</h3>
               <div className="mt-5 space-y-4">
@@ -763,7 +765,7 @@ export default function PitchPage() {
               </div>
             </div>
 
-            <div className="rounded-[32px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(251,243,228,0.92))] p-7 shadow-sm">
+            <div className="rounded-[24px] border border-amber-100 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(251,243,228,0.92))] p-5 shadow-sm sm:rounded-[32px] sm:p-7">
               <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">队伍信息</p>
               <div className="mt-5 grid gap-3">
                 {[
@@ -773,7 +775,7 @@ export default function PitchPage() {
                   ['选题', 'Agent 人格通用终端管理'],
                   ['Slogan', '灵魂的诞壳'],
                 ].map(([label, value]) => (
-                  <div key={label} className="flex items-center justify-between rounded-[20px] bg-white/82 px-4 py-3">
+                  <div key={label} className="flex flex-col items-start gap-2 rounded-[20px] bg-white/82 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                     <span className="text-sm font-bold text-stone-500">{label}</span>
                     <span className="text-sm font-bold text-amber-900">{value}</span>
                   </div>
@@ -783,18 +785,18 @@ export default function PitchPage() {
           </div>
         </section>
 
-        <section className="mt-24">
+        <section className="mt-16 sm:mt-24">
           <SectionTitle
             eyebrow="Closing"
             title="SoulShell 要做的，是把人格主权从工具里拿回来"
             body="它连接上游的记忆层与下游的执行 Agent，把原本散落在工具内部的人格、认知和边界，重新变成用户可以主动管理的界面。"
           />
 
-          <div className="mt-10 rounded-[36px] border border-amber-100 bg-white/80 p-8 shadow-[0_20px_60px_rgba(120,53,15,0.08)]">
+          <div className="mt-10 rounded-[28px] border border-amber-100 bg-white/80 p-5 shadow-[0_20px_60px_rgba(120,53,15,0.08)] sm:rounded-[36px] sm:p-8">
             <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
                 <p className="text-xs font-black uppercase tracking-[0.26em] text-amber-700">Final Line</p>
-                <p className="mt-4 font-headline text-4xl font-extrabold leading-tight tracking-[-0.03em] text-amber-950 sm:text-5xl">
+                <p className="mt-4 font-headline text-3xl font-extrabold leading-tight tracking-[-0.03em] text-amber-950 sm:text-5xl">
                   用户不该被动适应每一个 Agent。
                   <br />
                   用户应该主动管理自己 Agent 的人格与记忆。
